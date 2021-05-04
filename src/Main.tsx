@@ -117,6 +117,8 @@ export class Main extends React.Component<IMainProps, IMainState>
                                     config={this.state.config}
                                     elements={this.state.elements}
                                     selectedElementIndex={this.state.selectedElementIndex}
+                                    setImages={images => this.setImages(images)}
+                                    setElements={newElements => this.setState({ elements: newElements })}
                                     selectElement={id => this.setState({ selectedElementIndex: id })}
                                     updateElement={(element, index) => this.updateElement(element, index)}
                                     addNewElement={() => this.addNewElement()}

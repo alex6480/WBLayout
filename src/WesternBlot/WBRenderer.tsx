@@ -15,6 +15,8 @@ export interface IWBRendererProps
     updateElement: (element: WBElement, index: number) => void;
     addNewElement: () => void;
     setConfig: (config: Config) => void;
+    setElements: (elements: WBElement[]) => void;
+    setImages: (images: { [id: number]: IImageObject }) => void;
 }
 
 interface IWBRendererState
@@ -37,6 +39,8 @@ type MouseMoveAction = {
 export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererState>
 {
     private svgElement: SVGSVGElement | null = null;
+    private svgDataStart: string = "<!-- <DATA>";
+    private svgDataEnd: string = "</DATA> -->";
 
     constructor(props: IWBRendererProps)
     {
@@ -54,7 +58,8 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
             svgEl.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
             var svgData = svgEl.outerHTML;
             var preface = '<?xml version="1.0" standalone="no"?>\r\n';
-            var svgBlob = new Blob([preface, svgData], { type: "image/svg+xml;charset=utf-8" });
+            var comment = this.svgDataStart + JSON.stringify({ config: this.props.config, images: this.props.images, elements: this.props.elements }) + this.svgDataEnd;
+            var svgBlob = new Blob([preface, comment, svgData], { type: "image/svg+xml;charset=utf-8" });
             var svgUrl = URL.createObjectURL(svgBlob);
             var downloadLink = document.createElement("a");
             downloadLink.href = svgUrl;
@@ -137,6 +142,32 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
         }
     }
 
+    private loadFile()
+    {
+        var inputElement = document.createElement("input");
+        inputElement.setAttribute("type", "file");
+        document.body.append(inputElement);
+        inputElement.onchange = (ev) => {
+            if (inputElement.files && inputElement.files.length) {
+                var reader = new FileReader();
+                reader.onload = () => {
+                    var svgContents = reader.result as string;
+                    var startIndex = svgContents.indexOf(this.svgDataStart) + this.svgDataStart.length;
+                    var endIndex = svgContents.indexOf(this.svgDataEnd, startIndex) - startIndex;
+                    var dataString = svgContents.substr(startIndex, endIndex);
+                    let data = JSON.parse(dataString);
+
+                    this.props.setConfig(data.config);
+                    this.props.setElements(data.elements);
+                    this.props.setImages(data.images);
+                };
+                reader.readAsText(inputElement.files[0]);
+            }
+        }
+        inputElement.click();
+        document.body.removeChild(inputElement);
+    }
+
     public render(): JSX.Element
     {
         let strokeWidth = this.props.config.strokeWidth;
@@ -195,11 +226,11 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
             <div className="buttons">
                 <a className="button" onClick={() => this.props.addNewElement()}>Add element</a>
                 <a className="button" onClick={() => this.saveSvg()}>Download SVG</a>
-                <a className="button">Download editor file</a>
+                <a className="button" onClick={() => this.loadFile()}>Load</a>
             </div>
             <svg ref={e => this.svgElement = e} width={this.props.config.blotWidth * 2} height={offset + 100}>
                 { /* Render well labels */}
-                {Array.from(Array(this.props.config.numberOfWells).keys()).map(index => <text
+                {Array.from(Array(this.props.config.numberOfWells).keys()).map(index => <text key={"well-label-" + index}
                     x={this.props.config.blotSideSpacing + (this.props.config.blotWidth - this.props.config.blotSideSpacing * 2) / this.props.config.numberOfWells * (index + 0.5)}
                     y={initialOffset - this.props.config.spacing}
                     textAnchor={this.state.rendering ? "left" : "middle"}>{index + 1}</text>)}
