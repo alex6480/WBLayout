@@ -41,6 +41,7 @@ export class ImageBrowser extends React.Component<IImageBrowserProps, {}>
                             [key]: {
                                 ...this.props.images[key],
                                 data: dataURL as string,
+                                name: inputElement.files[0].name,
                                 size: {
                                     width: image.width,
                                     height: image.height
@@ -69,14 +70,16 @@ export class ImageBrowser extends React.Component<IImageBrowserProps, {}>
                 <tbody>
                 {
                     Object.keys(this.props.images).map(index => <tr key={index}>
-                        <td>[{Number(index)}] {this.props.images[Number(index)].name}</td>
+                        <td>
+                            {this.props.images[Number(index)].data === undefined && <span style={{ color: "red", fontWeight: "bold" }}>Missing!</span>}
+                            {this.props.images[Number(index)].name}
+                        </td>
                         <td>
                             <div className="buttons">
                                 {this.props.showingImageIndex === Number(index)
                                     ? <a className="button is-small" onClick={() => this.props.viewImage(undefined)}>Close</a>
                                     : <a className="button is-small" onClick={() => this.props.viewImage(Number(index))}>View</a>
                                 }
-                                <a className="button is-small">Rename</a>
                                 <a className="button is-small" onClick={() => this.props.setImages(
                                     Object.keys(this.props.images).reduce((object, key) => {
                                         if (index != key)

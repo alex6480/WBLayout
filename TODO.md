@@ -3,6 +3,7 @@
     1. Whether the WB is intended to be used in illustrator. This will make it left align text as the positioning is not preserved. Users will have to manually center align afterwards
     2. Whether images should be embedded in the SVG or linked
 3. Automatically prompt the user to import missing images when opening a save file
+   Currently the user is told to go to the images tab. The user should be redirected to the images tab
 4. Add functionality to reorder elements
 5. Use SVG filters to see if they are supported better in other applications. Currently the filters don't work in illustrator or microsoft office
 6. Add a menu for modifying well labes
@@ -13,4 +14,4 @@
        --------- ---------
         A    B    C    D
        ---- ---- ---- ----
-    3. This necessitates adding a new property for well spacing
+    3. There should also be an option to have 45 degree slanted labes
