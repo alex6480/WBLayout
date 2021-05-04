@@ -4,7 +4,8 @@ import { TabSet } from './Components/Tabset';
 import { Config } from './Config';
 import { ConfigEditor } from './ConfigEditor';
 import { ImageBrowser } from './ImageBrowser';
-import { WBElement } from './WesternBlot/WBElement';
+import { IImageObject } from './Types/IImageObject';
+import { WBElement } from './Types/WBElement';
 import { WBElementEditor } from './WesternBlot/WBElementEditor';
 import { WBElementList } from './WesternBlot/WBElementList';
 import { WBImagePreview } from './WesternBlot/WBImagePreview';
@@ -22,14 +23,6 @@ interface IMainState
     elements: WBElement[];
     showingImageIndex?: number;
     selectedElementIndex?: number;
-}
-
-export interface IImageObject
-{
-    name: string,
-    data: string,
-    inverted: boolean,
-    size: { width: number, height: number }
 }
 
 export class Main extends React.Component<IMainProps, IMainState>
@@ -88,7 +81,6 @@ export class Main extends React.Component<IMainProps, IMainState>
             return {
                 data: "",
                 name: "Missing image",
-                inverted: false,
                 size: { width: 1000, height: 1000 }
             };
         }

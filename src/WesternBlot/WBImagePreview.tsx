@@ -2,8 +2,8 @@ import * as React from 'react';
 import { App } from '../App';
 import { Config } from '../Config';
 import { rotateVector, Vector } from '../helpers';
-import { IImageObject } from '../Main';
-import { WBElement } from './WBElement';
+import { IImageObject } from '../Types/IImageObject';
+import { WBElement } from '../Types/WBElement';
 
 export interface IWBImagePreviewProps
 {

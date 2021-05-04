@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { App } from './App';
 import { Config } from './Config';
-import { IImageObject } from './Main';
+import { IImageObject } from './Types/IImageObject';
 
 export interface IImageBrowserProps
 {
@@ -90,7 +90,6 @@ export class ImageUploadButton extends React.Component<IImageUploadButtonProps, 
                     this.props.addImage({
                         name: inputElement.files[0].name,
                         data: dataURL as string,
-                        inverted: false,
                         size: { width: image.width, height: image.height }
                     })
                 }

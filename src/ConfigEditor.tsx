@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { App } from './App';
 import { Config } from './Config';
-import { IImageObject } from './Main';
 
 export interface IConfigEditorProps
 {
