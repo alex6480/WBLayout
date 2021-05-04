@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { App } from './App';
 import { TabSet } from './Components/Tabset';
-import { Config } from './Config';
+import { Config } from './Types/Config';
 import { ConfigEditor } from './ConfigEditor';
 import { ImageBrowser } from './ImageBrowser';
 import { IImageObject } from './Types/IImageObject';

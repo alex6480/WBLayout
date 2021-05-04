@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { App } from './App';
-import { Config } from './Config';
+import { Config } from './Types/Config';
 import { IImageObject } from './Types/IImageObject';
 
 export interface IImageBrowserProps
