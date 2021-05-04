@@ -143,7 +143,7 @@ export class WBImagePreview extends React.Component<IWBImagePreviewProps, {}>
         let image = this.props.getImage(element.imageIndex);
         let bbHeight = element.height * element.boundingBox.width / this.props.config.blotWidth;
         let grabSize = 10;
-        let sideSpacing = this.props.config.blotSideSpacing * element.boundingBox.width / this.props.config.blotWidth;
+        let sideSpacing = this.props.config.wellOutsideSpacing * element.boundingBox.width / this.props.config.blotWidth;
 
         return <svg ref={e => this.svgElement = e} width={image.size.width} height={image.size.height}>
             <image xlinkHref={image.data}></image>
@@ -161,7 +161,7 @@ export class WBImagePreview extends React.Component<IWBImagePreviewProps, {}>
                     x1={-element.boundingBox.width * 0.5 + sideSpacing + (element.boundingBox.width - sideSpacing * 2) / this.props.config.numberOfWells * index}
                     x2={-element.boundingBox.width * 0.5 + sideSpacing + (element.boundingBox.width - sideSpacing * 2) / this.props.config.numberOfWells * index}
                     y1={-bbHeight * 0.5} y2={bbHeight * 0.5}
-                    strokeWidth={1} stroke="red" strokeDasharray="2,2"
+                    strokeWidth={this.props.config.wellSpacing} stroke="red" strokeDasharray="2,2"
                 />)}
                 <rect x={-element.boundingBox.width * 0.5} y={-bbHeight * 0.5} height={bbHeight} width={sideSpacing} fill={ "rgba(255, 0, 0, 0.3)" }></rect>
                 <rect x={element.boundingBox.width * 0.5 - sideSpacing} y={-bbHeight * 0.5} height={bbHeight} width={sideSpacing} fill={ "rgba(255, 0, 0, 0.3)" }></rect>

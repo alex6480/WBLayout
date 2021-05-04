@@ -1,8 +1,10 @@
 export type Config = {
     numberOfWells: number,
+    wellSpacing: number,
+    wellOutsideSpacing: number,
+
     blotWidth: number,
-    blotSideSpacing: number,
-    spacing: number,
+    elementSpacing: number,
     labelSpacing: number,
     strokeWidth: number,
 }

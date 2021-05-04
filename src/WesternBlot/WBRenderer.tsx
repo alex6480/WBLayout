@@ -53,7 +53,7 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
     }
 
     private saveSvg() {
-        let embedImages = true;
+        let embedImages = false;
         // Make a copy of the application state
         let data = JSON.parse(JSON.stringify({ config: this.props.config, images: this.props.images, elements: this.props.elements }));
         // Remove image data from the data array
@@ -255,7 +255,7 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                 </>}
             </g>;
             
-            offset += element.height + this.props.config.spacing;
+            offset += element.height + this.props.config.elementSpacing;
             
             return result;
         });
@@ -268,8 +268,8 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
             <svg ref={e => this.svgElement = e} width={this.props.config.blotWidth * 2} height={offset + 100}>
                 { /* Render well labels */}
                 {Array.from(Array(this.props.config.numberOfWells).keys()).map(index => <text key={"well-label-" + index}
-                    x={this.props.config.blotSideSpacing + (this.props.config.blotWidth - this.props.config.blotSideSpacing * 2) / this.props.config.numberOfWells * (index + 0.5)}
-                    y={initialOffset - this.props.config.spacing}
+                    x={this.props.config.wellOutsideSpacing + (this.props.config.blotWidth - this.props.config.wellOutsideSpacing * 2) / this.props.config.numberOfWells * (index + 0.5)}
+                    y={initialOffset - this.props.config.elementSpacing}
                     textAnchor={this.state.rendering ? "left" : "middle"}>{index + 1}</text>)}
                 {elementComponents}
             </svg>

@@ -33,8 +33,8 @@ export class ConfigEditor extends React.Component<IConfigEditorProps, {}>
                 <div className="field has-addons">
                     <div className="control">
                         <input className="input" type="number"
-                            value={this.props.config.spacing}
-                            onChange={(e) => this.props.setConfig({ ...this.props.config, spacing: e.target.valueAsNumber })} />
+                            value={this.props.config.elementSpacing}
+                            onChange={(e) => this.props.setConfig({ ...this.props.config, elementSpacing: e.target.valueAsNumber })} />
                     </div>
                     <p className="control">
                         <a className="button is-static">
@@ -48,7 +48,7 @@ export class ConfigEditor extends React.Component<IConfigEditorProps, {}>
                 <div className="field has-addons">
                     <div className="control">
                         <input className="input" type="number"
-                            value={this.props.config.spacing}
+                            value={this.props.config.elementSpacing}
                             onChange={(e) => this.props.setConfig({ ...this.props.config, labelSpacing: e.target.valueAsNumber })} />
                     </div>
                     <p className="control">
@@ -93,8 +93,23 @@ export class ConfigEditor extends React.Component<IConfigEditorProps, {}>
                 <div className="field has-addons">
                     <div className="control">
                         <input className="input" type="number"
-                            value={this.props.config.blotSideSpacing}
-                            onChange={(e) => this.props.setConfig({ ...this.props.config, blotSideSpacing: e.target.valueAsNumber })} />
+                            value={this.props.config.wellOutsideSpacing}
+                            onChange={(e) => this.props.setConfig({ ...this.props.config, wellOutsideSpacing: e.target.valueAsNumber })} />
+                    </div>
+                    <p className="control">
+                        <a className="button is-static">
+                            px
+                        </a>
+                    </p>
+                </div>
+            </div>
+            <div className="field">
+                <label className="label">Spacing between wells</label>
+                <div className="field has-addons">
+                    <div className="control">
+                        <input className="input" type="number"
+                            value={this.props.config.wellSpacing}
+                            onChange={(e) => this.props.setConfig({ ...this.props.config, wellSpacing: e.target.valueAsNumber })} />
                     </div>
                     <p className="control">
                         <a className="button is-static">

@@ -33,10 +33,11 @@ export class Main extends React.Component<IMainProps, IMainState>
             config: {
                 blotWidth: 400,
                 numberOfWells: 10,
-                spacing: 10,
+                elementSpacing: 10,
                 strokeWidth: 2,
                 labelSpacing: 10,
-                blotSideSpacing: 0,
+                wellOutsideSpacing: 0,
+                wellSpacing: 2,
             },
             images: {},
             elements: [],
