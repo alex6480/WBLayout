@@ -23,6 +23,7 @@ interface IWBRendererState
 {
     focusedIndex?: number;
     rendering: boolean;
+    embedImages: boolean;
     mouseMoveAction?: MouseMoveAction;
 }
 
@@ -47,18 +48,28 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
         super(props);
         this.state = {
             rendering: false,
+            embedImages: true,
         };
     }
 
     private saveSvg() {
-        this.setState({ rendering: true }, () => {
+        let embedImages = true;
+        // Make a copy of the application state
+        let data = JSON.parse(JSON.stringify({ config: this.props.config, images: this.props.images, elements: this.props.elements }));
+        // Remove image data from the data array
+        Object.keys(data.images).map(key => delete (data.images[key] as IImageObject).data);
+
+        this.setState({
+            rendering: true,
+            embedImages: embedImages
+        }, () => {
             let svgEl = this.svgElement;
 
             svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg");
             svgEl.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
             var svgData = svgEl.outerHTML;
             var preface = '<?xml version="1.0" standalone="no"?>\r\n';
-            var comment = this.svgDataStart + JSON.stringify({ config: this.props.config, images: this.props.images, elements: this.props.elements }) + this.svgDataEnd;
+            var comment = this.svgDataStart + JSON.stringify(data) + this.svgDataEnd;
             var svgBlob = new Blob([preface, comment, svgData], { type: "image/svg+xml;charset=utf-8" });
             var svgUrl = URL.createObjectURL(svgBlob);
             var downloadLink = document.createElement("a");
@@ -68,7 +79,10 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
             downloadLink.click();
             document.body.removeChild(downloadLink);
 
-            this.setState({ rendering: false });
+            this.setState({
+                rendering: false,
+                embedImages: true
+            });
         });
     }
 
@@ -157,6 +171,28 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                     var dataString = svgContents.substr(startIndex, endIndex);
                     let data = JSON.parse(dataString);
 
+                    // Try to load the data for the images if it has been embedded
+                    var parser = new DOMParser();
+                    var doc = parser.parseFromString(svgContents, "image/svg+xml");
+
+                    let missingImages = false;
+                    Object.keys(data.images).map(key => {
+                        let image = doc.getElementById("image-" + key);
+                        if (image && image.getAttribute("xlink:href").indexOf("data:") == 0)
+                        {
+                            (data.images[key] as IImageObject).data = image.getAttribute("xlink:href");
+                        }
+                        else
+                        {
+                            missingImages = true;
+                        }
+                    });
+
+                    if (missingImages)
+                    {
+                        alert("Some images are missing and need to be uploaded manually on the images tab");
+                    }
+
                     this.props.setConfig(data.config);
                     this.props.setElements(data.elements);
                     this.props.setImages(data.images);
@@ -183,6 +219,7 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                 </clipPath>
                 <g style={{ clipPath: "url(#element-image-clip-" + index + ")" }}>
                     <image
+                        id={element.imageIndex !== undefined ? "image-" + element.imageIndex : undefined}
                         width={this.props.getImage(element.imageIndex).size.width}
                         height={this.props.getImage(element.imageIndex).size.height}
                         transform={`scale(${imageScale}),` +
@@ -190,7 +227,7 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                             `rotate(${-element.boundingBox.rotation})` +
                             `translate(${-element.boundingBox.x}, ${-element.boundingBox.y})`}
                         style={{ filter: `invert(${element.imageProperties.inverted ? 1 : 0}) brightness(${element.imageProperties.brightness}%) contrast(${element.imageProperties.contrast}%)`}}
-                        xlinkHref={this.state.rendering ? this.props.getImage(element.imageIndex).name : this.props.getImage(element.imageIndex).data}></image>
+                        xlinkHref={this.state.embedImages ? this.props.getImage(element.imageIndex).data :  this.props.getImage(element.imageIndex).name}></image>
                 </g>
 
                 { /* Render the outline */}

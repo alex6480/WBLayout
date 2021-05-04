@@ -23,6 +23,39 @@ export class ImageBrowser extends React.Component<IImageBrowserProps, {}>
         });
     }
 
+    private replaceImage(key: number)
+    {
+        var inputElement = document.createElement("input");
+        inputElement.setAttribute("type", "file");
+        document.body.append(inputElement);
+        inputElement.onchange = (ev) => {
+            if (inputElement.files && inputElement.files.length) {
+                var reader = new FileReader();
+                reader.onload = () => {
+                    var dataURL = reader.result;
+                    let image = new Image();
+                    image.src = dataURL as string;
+                    image.onload = () => {
+                        this.props.setImages({
+                            ...this.props.images,
+                            [key]: {
+                                ...this.props.images[key],
+                                data: dataURL as string,
+                                size: {
+                                    width: image.width,
+                                    height: image.height
+                                }
+                            }
+                        });
+                    }
+                };
+                reader.readAsDataURL(inputElement.files[0]);
+            }
+        }
+        inputElement.click();
+        document.body.removeChild(inputElement);
+    }
+
     public render(): JSX.Element
     {
         return <>
@@ -53,6 +86,7 @@ export class ImageBrowser extends React.Component<IImageBrowserProps, {}>
                                         return object;
                                     }, {} as { [k: number]: any}) as any)}
                                 >Remove</a>
+                                <a className="button is-small" onClick={() => this.replaceImage(Number(index))}>Replace</a>
                             </div>
                         </td>
                     </tr>)
