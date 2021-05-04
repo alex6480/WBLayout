@@ -64,8 +64,8 @@ export class WBElementEditor extends React.Component<IWBElementEditorProps, {}>
                             : <div className="select">
                                 <select onChange={(e) => this.props.updateElement({ ...element, imageIndex: e.target.value !== "no-image" ? Number(e.target.value) : undefined }, index)}
                                     value={element.imageIndex === undefined || this.props.images[element.imageIndex] === undefined ? "no-image" : element.imageIndex}>
-                                    {<option key="no-image" value="no-image" disabled={true} selected={true}>Select an image</option>}
-                                    {Object.keys(this.props.images).map(id => <option key={id} value={id} selected={Number(id) === element.imageIndex}>
+                                    {<option key="no-image" value="no-image" disabled={true}>Select an image</option>}
+                                    {Object.keys(this.props.images).map(id => <option key={id} value={id}>
                                         {this.props.images[Number(id)].name}
                                     </option>)}
                                 </select>
