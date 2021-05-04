@@ -140,7 +140,8 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
     public render(): JSX.Element
     {
         let strokeWidth = this.props.config.strokeWidth;
-        let offset = 0;
+        const initialOffset = 100;
+        let offset = initialOffset;
         let elementComponents = this.props.elements.map((element, index) => {
             let selected = this.props.selectedElementIndex === index;
             let imageScale = this.props.config.blotWidth / element.boundingBox.width;
@@ -175,7 +176,7 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                     style={{ cursor: selected ? (this.state.mouseMoveAction !== undefined ? 'grabbing' : 'grab') : 'pointer' }}></rect>}
                 
                 { /* Render the label */}
-                <text y={offset + element.height * 0.5} x={this.props.config.blotWidth + this.props.config.labelSpacing} dominantBaseline="middle">{element.label}</text>
+                <text y={offset + element.height * 0.5} x={this.props.config.blotWidth + this.props.config.labelSpacing} dominantBaseline="central">{element.label}</text>
                 
                 { /* Render editor utilities */}
                 { ! this.state.rendering && <>
@@ -196,7 +197,14 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                 <a className="button" onClick={() => this.saveSvg()}>Download SVG</a>
                 <a className="button">Download editor file</a>
             </div>
-            <svg ref={e => this.svgElement = e} width={this.props.config.blotWidth * 2 + 2000} height={offset + 2000}>{elementComponents}</svg>
+            <svg ref={e => this.svgElement = e} width={this.props.config.blotWidth * 2} height={offset + 100}>
+                { /* Render well labels */}
+                {Array.from(Array(this.props.config.numberOfWells).keys()).map(index => <text
+                    x={this.props.config.blotSideSpacing + (this.props.config.blotWidth - this.props.config.blotSideSpacing * 2) / this.props.config.numberOfWells * (index + 0.5)}
+                    y={initialOffset - this.props.config.spacing}
+                    textAnchor={this.state.rendering ? "left" : "middle"}>{index + 1}</text>)}
+                {elementComponents}
+            </svg>
         </>;
     }
 }
