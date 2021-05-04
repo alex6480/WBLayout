@@ -36,6 +36,7 @@ export class Main extends React.Component<IMainProps, IMainState>
                 spacing: 10,
                 strokeWidth: 2,
                 labelSpacing: 10,
+                blotSideSpacing: 0,
             },
             images: {},
             elements: [],

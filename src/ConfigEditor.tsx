@@ -88,6 +88,21 @@ export class ConfigEditor extends React.Component<IConfigEditorProps, {}>
                     </p>
                 </div>
             </div>
+            <div className="field">
+                <label className="label">Spacing before the first well and after the last</label>
+                <div className="field has-addons">
+                    <div className="control">
+                        <input className="input" type="number"
+                            value={this.props.config.blotSideSpacing}
+                            onChange={(e) => this.props.setConfig({ ...this.props.config, blotSideSpacing: e.target.valueAsNumber })} />
+                    </div>
+                    <p className="control">
+                        <a className="button is-static">
+                            px
+                        </a>
+                    </p>
+                </div>
+            </div>
         </>;
     }
 }
