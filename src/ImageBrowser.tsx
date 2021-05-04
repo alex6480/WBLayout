@@ -8,35 +8,19 @@ export interface IImageBrowserProps
     app: App;
     images: { [id: number]: IImageObject };
     showingImageIndex?: number;
-    setImage: (images: {[id: number]: IImageObject }) => void;
+    setImages: (images: {[id: number]: IImageObject }) => void;
     viewImage: (index?: number) => void;
 }
 
 export class ImageBrowser extends React.Component<IImageBrowserProps, {}>
 {
-    private fileUploaded(e: React.ChangeEvent<HTMLInputElement>)
+    private AddImage(image: IImageObject)
     {
-        var inputElement = e.target;
-        if (inputElement.files && inputElement.files.length) {
-            var reader = new FileReader();
-            reader.onload = () => {
-                var dataURL = reader.result;
-                let image = new Image();
-                image.src = dataURL as string;
-                image.onload = () => {
-                    this.props.setImage({
-                        ...this.props.images,
-                        [Object.keys(this.props.images).length > 0 ? Math.max(...Object.keys(this.props.images).map(i => Number(i))) + 1 : 1]: {
-                            name: inputElement.files[0].name,
-                            data: dataURL as string,
-                            inverted: false,
-                            size: { width: image.width, height: image.height }
-                        }
-                    });
-                }
-            };
-            reader.readAsDataURL(inputElement.files[0]);
-        }
+        let key = Object.keys(this.props.images).length > 0 ? Math.max(...Object.keys(this.props.images).map(i => Number(i))) + 1 : 1;
+        this.props.setImages({
+            ...this.props.images,
+            [key]: image
+        });
     }
 
     public render(): JSX.Element
@@ -60,7 +44,7 @@ export class ImageBrowser extends React.Component<IImageBrowserProps, {}>
                                     : <a className="button is-small" onClick={() => this.props.viewImage(Number(index))}>View</a>
                                 }
                                 <a className="button is-small">Rename</a>
-                                <a className="button is-small" onClick={() => this.props.setImage(
+                                <a className="button is-small" onClick={() => this.props.setImages(
                                     Object.keys(this.props.images).reduce((object, key) => {
                                         if (index != key)
                                         {
@@ -72,24 +56,60 @@ export class ImageBrowser extends React.Component<IImageBrowserProps, {}>
                             </div>
                         </td>
                     </tr>)
-                }
+                    }
+                    <tr>
+                        <td>
+                            <ImageUploadButton images={this.props.images} addImage={image => this.AddImage(image)}>Add Image</ImageUploadButton>
+                        </td>
+                        <td></td>
+                    </tr>
                 </tbody>
-                <tr>
-                    <td>
-                        <div className="file">
-                            <label className="file-label">
-                                <input className="file-input" type="file" onChange={e => this.fileUploaded(e)} />
-                                <span className="file-cta">
-                                    <span className="file-label">
-                                        Add image
-                                    </span>
-                                </span>
-                            </label>
-                        </div>
-                    </td>
-                    <td></td>
-                </tr>
             </table>
         </>;
+    }
+}
+
+export interface IImageUploadButtonProps
+{
+    images: { [id: number]: IImageObject };
+    addImage: (image: IImageObject) => void;
+}
+
+export class ImageUploadButton extends React.Component<IImageUploadButtonProps, {}>
+{
+    private fileUploaded(e: React.ChangeEvent<HTMLInputElement>)
+    {
+        var inputElement = e.target;
+        if (inputElement.files && inputElement.files.length) {
+            var reader = new FileReader();
+            reader.onload = () => {
+                var dataURL = reader.result;
+                let image = new Image();
+                image.src = dataURL as string;
+                image.onload = () => {
+                    this.props.addImage({
+                        name: inputElement.files[0].name,
+                        data: dataURL as string,
+                        inverted: false,
+                        size: { width: image.width, height: image.height }
+                    })
+                }
+            };
+            reader.readAsDataURL(inputElement.files[0]);
+        }
+    }
+
+    public render()
+    {
+        return <div className="file">
+            <label className="file-label">
+                <input className="file-input" type="file" onChange={e => this.fileUploaded(e)} />
+                <span className="file-cta">
+                    <span className="file-label">
+                        { this.props.children }
+                </span>
+                </span>
+            </label>
+        </div>;
     }
 }

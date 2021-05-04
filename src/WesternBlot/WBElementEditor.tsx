@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { App } from '../App';
 import { Config } from '../Config';
+import { ImageUploadButton } from '../ImageBrowser';
 import { IImageObject } from '../Main';
 import { WBElement } from './WBElement';
 
@@ -8,11 +9,26 @@ export interface IWBElementEditorProps
 {
     elements: WBElement[];
     elementIndex: number;
+    images: { [id: number]: IImageObject };
     updateElement: (element: WBElement, index: number) => void;
+    setImages: (images: {[id: number]: IImageObject }) => void;
 }
 
 export class WBElementEditor extends React.Component<IWBElementEditorProps, {}>
 {
+    private AddNewImage(image: IImageObject)
+    {
+        let key = Object.keys(this.props.images).length > 0 ? Math.max(...Object.keys(this.props.images).map(i => Number(i))) + 1 : 1;
+        this.props.setImages({
+            ...this.props.images,
+            [key]: image
+        });
+        this.props.updateElement({
+            ...this.props.elements[this.props.elementIndex],
+            imageIndex: key,
+        }, this.props.elementIndex);
+    }
+
     public render(): JSX.Element
     {
         let index = this.props.elementIndex;
@@ -43,9 +59,16 @@ export class WBElementEditor extends React.Component<IWBElementEditorProps, {}>
                 <label className="label">Image</label>
                 <div className="field">
                     <div className="control">
-                        <input className="input" type="number"
-                            value={element.imageIndex}
-                            onChange={(e) => this.props.updateElement({...element, imageIndex: e.target.valueAsNumber}, index)} />
+                        { Object.keys(this.props.images).length === 0
+                            ? <ImageUploadButton images={this.props.images} addImage={image => this.AddNewImage(image)}>Add image</ImageUploadButton>
+                            : <div className="select">
+                                <select onChange={(e) => this.props.updateElement({ ...element, imageIndex: Number(e.target.value) }, index)}>
+                                    {element.imageIndex === undefined || this.props.images[element.imageIndex] === undefined && <option disabled={true} selected={true}>Select an image</option>}
+                                    {Object.keys(this.props.images).map(id => <option value={id} selected={Number(id) === element.imageIndex}>
+                                        {this.props.images[Number(id)].name}
+                                    </option>)}
+                                </select>
+                            </div> }
                     </div>
                 </div>
             </div>

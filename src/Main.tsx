@@ -141,6 +141,8 @@ export class Main extends React.Component<IMainProps, IMainState>
                             name: "Selected element",
                             content: this.state.selectedElementIndex !== undefined
                                 ? < WBElementEditor
+                                    images={this.state.images}
+                                    setImages={images => this.setImages(images)}
                                     elementIndex={this.state.selectedElementIndex}
                                     elements={this.state.elements}
                                     updateElement={(element, index) => this.updateElement(element, index)} />
@@ -154,7 +156,7 @@ export class Main extends React.Component<IMainProps, IMainState>
                             name: "Images",
                             content: <ImageBrowser app={this.props.app}
                                 images={this.state.images}
-                                setImage={images => this.setImages(images)}
+                                setImages={images => this.setImages(images)}
                                 viewImage={(index: number) => this.setState({ showingImageIndex: index })}
                                 showingImageIndex={this.state.showingImageIndex}/>
                         },
@@ -163,6 +165,8 @@ export class Main extends React.Component<IMainProps, IMainState>
                             content: <WBElementList
                                 config={this.state.config}
                                 elements={this.state.elements}
+                                images={this.state.images}
+                                setImages={images => this.setImages(images)}
                                 updateElement={(element, index) => this.updateElement(element, index)}
                                 setElements={newElements => this.setState({ elements: newElements })}
                                 addNewElement={() => this.addNewElement()}/>
