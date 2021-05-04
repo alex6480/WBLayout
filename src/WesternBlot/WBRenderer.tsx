@@ -130,7 +130,7 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                             `translate(${element.boundingBox.width * 0.5}, ${(element.height * 0.5 + offset) / imageScale}),` +
                             `rotate(${-element.boundingBox.rotation})` +
                             `translate(${-element.boundingBox.x}, ${-element.boundingBox.y})`}
-                        xlinkHref={this.props.getImage(element.imageIndex).data}></image>
+                        xlinkHref={this.state.rendering ? this.props.getImage(element.imageIndex).name : this.props.getImage(element.imageIndex).data}></image>
                 </g>
                 <rect x={strokeWidth * 0.5} y={offset + strokeWidth * 0.5} height={element.height - strokeWidth} width={this.props.config.blotWidth - strokeWidth}
                     stroke={ selected && ! this.state.rendering ? "red" : "black"}
