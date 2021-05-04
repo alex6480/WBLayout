@@ -1,0 +1,95 @@
+import * as React from 'react';
+import { App } from './App';
+import { Config } from './Config';
+import { IImageObject } from './Main';
+
+export interface IImageBrowserProps
+{
+    app: App;
+    images: { [id: number]: IImageObject };
+    showingImageIndex?: number;
+    setImage: (images: {[id: number]: IImageObject }) => void;
+    viewImage: (index?: number) => void;
+}
+
+export class ImageBrowser extends React.Component<IImageBrowserProps, {}>
+{
+    private fileUploaded(e: React.ChangeEvent<HTMLInputElement>)
+    {
+        var inputElement = e.target;
+        if (inputElement.files && inputElement.files.length) {
+            var reader = new FileReader();
+            reader.onload = () => {
+                var dataURL = reader.result;
+                let image = new Image();
+                image.src = dataURL as string;
+                image.onload = () => {
+                    this.props.setImage({
+                        ...this.props.images,
+                        [Object.keys(this.props.images).length > 0 ? Math.max(...Object.keys(this.props.images).map(i => Number(i))) + 1 : 1]: {
+                            name: inputElement.files[0].name,
+                            data: dataURL as string,
+                            inverted: false,
+                            size: { width: image.width, height: image.height }
+                        }
+                    });
+                }
+            };
+            reader.readAsDataURL(inputElement.files[0]);
+        }
+    }
+
+    public render(): JSX.Element
+    {
+        return <>
+            <table className="table is-fullwidth">
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {
+                    Object.keys(this.props.images).map(index => <tr key={index}>
+                        <td>[{Number(index)}] {this.props.images[Number(index)].name}</td>
+                        <td>
+                            <div className="buttons">
+                                {this.props.showingImageIndex === Number(index)
+                                    ? <a className="button is-small" onClick={() => this.props.viewImage(undefined)}>Close</a>
+                                    : <a className="button is-small" onClick={() => this.props.viewImage(Number(index))}>View</a>
+                                }
+                                <a className="button is-small">Rename</a>
+                                <a className="button is-small" onClick={() => this.props.setImage(
+                                    Object.keys(this.props.images).reduce((object, key) => {
+                                        if (index != key)
+                                        {
+                                            object[Number(key)] = this.props.images[Number(key)];
+                                        }
+                                        return object;
+                                    }, {} as { [k: number]: any}) as any)}
+                                >Remove</a>
+                            </div>
+                        </td>
+                    </tr>)
+                }
+                </tbody>
+                <tr>
+                    <td>
+                        <div className="file">
+                            <label className="file-label">
+                                <input className="file-input" type="file" onChange={e => this.fileUploaded(e)} />
+                                <span className="file-cta">
+                                    <span className="file-label">
+                                        Add image
+                                    </span>
+                                </span>
+                            </label>
+                        </div>
+                    </td>
+                    <td></td>
+                </tr>
+            </table>
+        </>;
+    }
+}
