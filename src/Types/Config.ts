@@ -5,6 +5,7 @@ export type Config = {
 
     blotWidth: number,
     elementSpacing: number,
-    labelSpacing: number,
+    elementLabelSpacing: number,
+    wellLabelSpacing: number,
     strokeWidth: number,
 }

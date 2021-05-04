@@ -244,7 +244,7 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                     style={{ cursor: selected ? (this.state.mouseMoveAction !== undefined ? 'grabbing' : 'grab') : 'pointer' }}></rect>}
                 
                 { /* Render the label */}
-                <text y={offset + element.height * 0.5} x={this.props.config.blotWidth + this.props.config.labelSpacing} dominantBaseline="central">{element.label}</text>
+                <text y={offset + element.height * 0.5} x={this.props.config.blotWidth + this.props.config.elementLabelSpacing} dominantBaseline="central">{element.label}</text>
                 
                 { /* Render editor utilities */}
                 { ! this.state.rendering && <>
@@ -269,8 +269,16 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                 { /* Render well labels */}
                 {Array.from(Array(this.props.config.numberOfWells).keys()).map(index => <text key={"well-label-" + index}
                     x={this.props.config.wellOutsideSpacing + (this.props.config.blotWidth - this.props.config.wellOutsideSpacing * 2) / this.props.config.numberOfWells * (index + 0.5)}
-                    y={initialOffset - this.props.config.elementSpacing}
+                    y={initialOffset - this.props.config.wellLabelSpacing - 5}
                     textAnchor={this.state.rendering ? "left" : "middle"}>{index + 1}</text>)}
+                {Array.from(Array(this.props.config.numberOfWells).keys()).map(index => <line key={"well-label-underline" + index}
+                    x1={this.props.config.wellOutsideSpacing + (this.props.config.blotWidth - this.props.config.wellOutsideSpacing * 2) / this.props.config.numberOfWells * index + this.props.config.wellSpacing * 0.5}
+                    x2={this.props.config.wellOutsideSpacing + (this.props.config.blotWidth - this.props.config.wellOutsideSpacing * 2) / this.props.config.numberOfWells * (index + 1) - this.props.config.wellSpacing * 0.5}
+                    y1={initialOffset - this.props.config.wellLabelSpacing}
+                    y2={initialOffset - this.props.config.wellLabelSpacing}
+                    stroke="black" strokeWidth={this.props.config.strokeWidth} />)}
+                
+                { /* Render the elements */ }
                 {elementComponents}
             </svg>
         </>;

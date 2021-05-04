@@ -48,8 +48,23 @@ export class ConfigEditor extends React.Component<IConfigEditorProps, {}>
                 <div className="field has-addons">
                     <div className="control">
                         <input className="input" type="number"
-                            value={this.props.config.elementSpacing}
-                            onChange={(e) => this.props.setConfig({ ...this.props.config, labelSpacing: e.target.valueAsNumber })} />
+                            value={this.props.config.elementLabelSpacing}
+                            onChange={(e) => this.props.setConfig({ ...this.props.config, elementLabelSpacing: e.target.valueAsNumber })} />
+                    </div>
+                    <p className="control">
+                        <a className="button is-static">
+                            px
+                        </a>
+                    </p>
+                </div>
+            </div>
+            <div className="field">
+                <label className="label">Spacing between well labels and the first element</label>
+                <div className="field has-addons">
+                    <div className="control">
+                        <input className="input" type="number"
+                            value={this.props.config.wellLabelSpacing}
+                            onChange={(e) => this.props.setConfig({ ...this.props.config, wellLabelSpacing: e.target.valueAsNumber })} />
                     </div>
                     <p className="control">
                         <a className="button is-static">
