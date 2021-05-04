@@ -34,27 +34,19 @@ export class WBElementEditor extends React.Component<IWBElementEditorProps, {}>
         let index = this.props.elementIndex;
         let element = this.props.elements[index];
         return <div>
-            <h3 className="title is-4">{element.name}</h3>
+            <h3 className="title is-4">General</h3>
             <div className="field">
-                <label className="label">Name</label>
+                <label className="label">Label</label>
                 <div className="field">
                     <div className="control">
                         <input className="input" type="text"
-                            value={element.name}
-                            onChange={(e) => this.props.updateElement({...element, name: e.target.value}, index)} />
+                            value={element.label}
+                            onChange={(e) => this.props.updateElement({...element, label: e.target.value}, index)} />
                     </div>
                 </div>
             </div>
-            <div className="field">
-                <label className="label">Height</label>
-                <div className="field">
-                    <div className="control">
-                        <input className="input" type="number"
-                            value={element.height}
-                            onChange={(e) => this.props.updateElement({...element, height: e.target.valueAsNumber}, index)} />
-                    </div>
-                </div>
-            </div>
+
+            <h3 className="title is-4">Image</h3>
             <div className="field">
                 <label className="label">Image</label>
                 <div className="field">
@@ -73,6 +65,47 @@ export class WBElementEditor extends React.Component<IWBElementEditorProps, {}>
                     </div>
                 </div>
             </div>
+            <div className="field">
+                <label className="checkbox">
+                    <input type="checkbox" onChange={e => this.props.updateElement({
+                        ...element, imageProperties: { ...element.imageProperties, inverted: ! element.imageProperties.inverted }
+                    }, index)}
+                        checked={element.imageProperties.inverted}/>
+                    Inverted
+                </label>
+            </div>
+            <div className="field">
+                <label className="label">Brightness</label>
+                <div className="field has-addons">
+                    <div className="control">
+                        <input className="input" type="number"
+                            value={element.imageProperties.brightness}
+                            onChange={(e) => this.props.updateElement({ ...element, imageProperties: { ...element.imageProperties, brightness: e.target.valueAsNumber } }, index)} />
+                    </div>
+                    <p className="control">
+                        <a className="button is-static">
+                            %
+                        </a>
+                    </p>
+                </div>
+            </div>
+            <div className="field">
+                <label className="label">Contrast</label>
+                <div className="field has-addons">
+                    <div className="control">
+                        <input className="input" type="number"
+                            value={element.imageProperties.contrast}
+                            onChange={(e) => this.props.updateElement({ ...element, imageProperties: { ...element.imageProperties, contrast: e.target.valueAsNumber } }, index)} />
+                    </div>
+                    <p className="control">
+                        <a className="button is-static">
+                            %
+                        </a>
+                    </p>
+                </div>
+            </div>
+
+            <h3 className="title is-4">Position</h3>
             <div className="field">
                 <label className="label">X</label>
                 <div className="field has-addons">
@@ -116,6 +149,16 @@ export class WBElementEditor extends React.Component<IWBElementEditorProps, {}>
                             px
                         </a>
                     </p>
+                </div>
+            </div>
+            <div className="field">
+                <label className="label">Height</label>
+                <div className="field">
+                    <div className="control">
+                        <input className="input" type="number"
+                            value={element.height}
+                            onChange={(e) => this.props.updateElement({...element, height: e.target.valueAsNumber}, index)} />
+                    </div>
                 </div>
             </div>
             <div className="field">

@@ -55,14 +55,19 @@ export class Main extends React.Component<IMainProps, IMainState>
             elements: [
                 ...this.state.elements,
                 {
-                    name: "Protein",
+                    label: "Protein",
                     imageIndex: undefined,
                     height: this.state.config.blotWidth / 5,
                     boundingBox: {
-                        x: 0,
-                        y: 0,
+                        x: this.state.config.blotWidth * 0.5,
+                        y: this.state.config.blotWidth * 0.1,
                         width: this.state.config.blotWidth,
                         rotation: 0,
+                    },
+                    imageProperties: {
+                        brightness: 100,
+                        contrast: 100,
+                        inverted: false,
                     }
                 }
             ]});

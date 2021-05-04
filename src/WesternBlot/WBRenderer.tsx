@@ -130,6 +130,7 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                             `translate(${element.boundingBox.width * 0.5}, ${(element.height * 0.5 + offset) / imageScale}),` +
                             `rotate(${-element.boundingBox.rotation})` +
                             `translate(${-element.boundingBox.x}, ${-element.boundingBox.y})`}
+                        style={{ filter: `invert(${element.imageProperties.inverted ? 1 : 0}) brightness(${element.imageProperties.brightness}%) contrast(${element.imageProperties.contrast}%)`}}
                         xlinkHref={this.state.rendering ? this.props.getImage(element.imageIndex).name : this.props.getImage(element.imageIndex).data}></image>
                 </g>
                 <rect x={strokeWidth * 0.5} y={offset + strokeWidth * 0.5} height={element.height - strokeWidth} width={this.props.config.blotWidth - strokeWidth}
@@ -143,7 +144,7 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                     onClick={() => this.props.selectElement(index)}
                     onMouseDown={e => selected && this.beginPan(e, index)}
                     style={{ cursor: selected ? (this.currentlyPanning !== undefined ? 'grabbing' : 'grab') : 'pointer' }}></rect>}
-                <text y={offset + element.height * 0.5} x={this.props.config.blotWidth + this.props.config.labelSpacing} dominantBaseline="middle">{ element.name }</text>
+                <text y={offset + element.height * 0.5} x={this.props.config.blotWidth + this.props.config.labelSpacing} dominantBaseline="middle">{ element.label }</text>
             </g>;
             
             offset += element.height + this.props.config.spacing;
