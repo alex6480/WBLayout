@@ -127,6 +127,7 @@ export class Main extends React.Component<IMainProps, IMainState>
                                     selectElement={id => this.setState({ selectedElementIndex: id })}
                                     updateElement={(element, index) => this.updateElement(element, index)}
                                     addNewElement={() => this.addNewElement()}
+                                    setConfig={newConf => this.setState({ config: newConf })}
                                 />
                             </div>
                             { this.state.selectedElementIndex !== undefined && <div style={{flex: "1", overflow: "scroll"}}>

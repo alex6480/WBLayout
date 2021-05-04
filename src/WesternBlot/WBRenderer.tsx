@@ -14,24 +14,28 @@ export interface IWBRendererProps
     selectElement: (id: number) => void;
     updateElement: (element: WBElement, index: number) => void;
     addNewElement: () => void;
+    setConfig: (config: Config) => void;
 }
 
 interface IWBRendererState
 {
     focusedIndex?: number;
     rendering: boolean;
+    mouseMoveAction?: MouseMoveAction;
 }
+
+type MouseMoveActionType = "pan" | "resize-height" | "resize-width";
+type MouseMoveAction = {
+    mouseMoveHandler: (ev: MouseEvent) => void,
+    mouseUpHandler: (ev: MouseEvent) => void;
+    lastMouseX: number,
+    lastMouseY: number,
+    elementIndex: number,
+    type: MouseMoveActionType
+};
 
 export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererState>
 {
-    private currentlyPanning?: {
-        mouseMoveHandler: (ev: MouseEvent) => void,
-        mouseUpHandler: (ev: MouseEvent) => void;
-        lastMouseX: number,
-        lastMouseY: number,
-        elementIndex: number
-    } = undefined;
-
     private svgElement: SVGSVGElement | null = null;
 
     constructor(props: IWBRendererProps)
@@ -63,33 +67,38 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
         });
     }
 
-    private beginPan(e: React.MouseEvent<SVGRectElement>, index: number)
+    private beginMouseMove(e: React.MouseEvent<SVGRectElement>, index: number, action: MouseMoveActionType)
     {
-        this.currentlyPanning = {
-            lastMouseX: e.screenX,
-            lastMouseY: e.screenY,
-            elementIndex: index,
-            mouseMoveHandler: this.updatePan.bind(this),
-            mouseUpHandler: this.endPan.bind(this),
-        };
-        window.addEventListener("mousemove", this.currentlyPanning.mouseMoveHandler);
-        window.addEventListener("mouseup", this.currentlyPanning.mouseUpHandler);
+        let mouseMoveHandler = this.updateMouseMove.bind(this);
+        let mouseUpHandler = this.endMouseMove.bind(this);
+        window.addEventListener("mousemove", mouseMoveHandler);
+        window.addEventListener("mouseup", mouseUpHandler);
+        this.setState({
+            mouseMoveAction: {
+                lastMouseX: e.screenX,
+                lastMouseY: e.screenY,
+                elementIndex: index,
+                mouseMoveHandler: mouseMoveHandler,
+                mouseUpHandler: mouseUpHandler,
+                type: action,
+            }
+        });
     }
 
-    private endPan()
+    private endMouseMove()
     {
-        window.removeEventListener("mousemove", this.currentlyPanning.mouseMoveHandler);
-        window.removeEventListener("mouseup", this.currentlyPanning.mouseUpHandler);
-        this.currentlyPanning = undefined;
+        window.removeEventListener("mousemove", this.state.mouseMoveAction.mouseMoveHandler);
+        window.removeEventListener("mouseup", this.state.mouseMoveAction.mouseUpHandler);
+        this.setState({ mouseMoveAction: undefined });
     }
 
-    private updatePan(ev: MouseEvent)
+    private updateMouseMove(ev: MouseEvent)
     {
-        if (this.currentlyPanning !== undefined)
+        if (this.state.mouseMoveAction !== undefined)
         {
-            let deltaXUntransformed = ev.screenX - this.currentlyPanning.lastMouseX;
-            let deltaYUntransformed = ev.screenY - this.currentlyPanning.lastMouseY;
-            let pannedElement = this.props.elements[this.currentlyPanning.elementIndex];
+            let deltaXUntransformed = ev.screenX - this.state.mouseMoveAction.lastMouseX;
+            let deltaYUntransformed = ev.screenY - this.state.mouseMoveAction.lastMouseY;
+            let pannedElement = this.props.elements[this.state.mouseMoveAction.elementIndex];
                 
             // Rotate the mouse movement vector with the image, so the pan is relative to the rotated image
             let cos = Math.cos(pannedElement.boundingBox.rotation / 180 * Math.PI);
@@ -97,17 +106,34 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
             let deltaX = deltaXUntransformed * cos - deltaYUntransformed * sin;
             let deltaY = deltaXUntransformed * sin + deltaYUntransformed * cos;
 
-            this.props.updateElement({
-                ...pannedElement,
-                boundingBox: {
-                    ...pannedElement.boundingBox,
-                    x: pannedElement.boundingBox.x - deltaX,
-                    y: pannedElement.boundingBox.y - deltaY,
-                }
-            }, this.currentlyPanning.elementIndex);
+            if (this.state.mouseMoveAction.type === "pan")
+            {
+                this.props.updateElement({
+                    ...pannedElement,
+                    boundingBox: {
+                        ...pannedElement.boundingBox,
+                        x: pannedElement.boundingBox.x - deltaX,
+                        y: pannedElement.boundingBox.y - deltaY,
+                    }
+                }, this.state.mouseMoveAction.elementIndex);
+            }
+            else if (this.state.mouseMoveAction.type === "resize-height")
+            {
+                this.props.updateElement({
+                    ...pannedElement,
+                    height: pannedElement.height + deltaYUntransformed,
+                }, this.state.mouseMoveAction.elementIndex);
+            }
+            else if (this.state.mouseMoveAction.type === "resize-width")
+            {
+                this.props.setConfig({
+                    ...this.props.config,
+                    blotWidth: this.props.config.blotWidth + deltaXUntransformed
+                });
+            }
 
-            this.currentlyPanning.lastMouseX = ev.screenX;
-            this.currentlyPanning.lastMouseY = ev.screenY;
+            this.state.mouseMoveAction.lastMouseX = ev.screenX;
+            this.state.mouseMoveAction.lastMouseY = ev.screenY;
         }
     }
 
@@ -119,6 +145,7 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
             let selected = this.props.selectedElementIndex === index;
             let imageScale = this.props.config.blotWidth / element.boundingBox.width;
             let result = <g key={index}>
+                { /* Render the image with clipping */}
                 <clipPath id={"element-image-clip-" + index}>
                     <rect x="0" y={offset} height={element.height} width={this.props.config.blotWidth}></rect>
                 </clipPath>
@@ -133,6 +160,8 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                         style={{ filter: `invert(${element.imageProperties.inverted ? 1 : 0}) brightness(${element.imageProperties.brightness}%) contrast(${element.imageProperties.contrast}%)`}}
                         xlinkHref={this.state.rendering ? this.props.getImage(element.imageIndex).name : this.props.getImage(element.imageIndex).data}></image>
                 </g>
+
+                { /* Render the outline */}
                 <rect x={strokeWidth * 0.5} y={offset + strokeWidth * 0.5} height={element.height - strokeWidth} width={this.props.config.blotWidth - strokeWidth}
                     stroke={ selected && ! this.state.rendering ? "red" : "black"}
                     strokeWidth={this.props.config.strokeWidth}
@@ -142,9 +171,19 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                     onMouseEnter={() => this.setState({ focusedIndex: index })}
                     onMouseLeave={() => this.state.focusedIndex === index && this.setState({ focusedIndex: undefined })}
                     onClick={() => this.props.selectElement(index)}
-                    onMouseDown={e => selected && this.beginPan(e, index)}
-                    style={{ cursor: selected ? (this.currentlyPanning !== undefined ? 'grabbing' : 'grab') : 'pointer' }}></rect>}
-                <text y={offset + element.height * 0.5} x={this.props.config.blotWidth + this.props.config.labelSpacing} dominantBaseline="middle">{ element.label }</text>
+                    onMouseDown={e => selected && this.beginMouseMove(e, index, "pan")}
+                    style={{ cursor: selected ? (this.state.mouseMoveAction !== undefined ? 'grabbing' : 'grab') : 'pointer' }}></rect>}
+                
+                { /* Render the label */}
+                <text y={offset + element.height * 0.5} x={this.props.config.blotWidth + this.props.config.labelSpacing} dominantBaseline="middle">{element.label}</text>
+                
+                { /* Render editor utilities */}
+                { ! this.state.rendering && <>
+                    <rect x={0} y={offset + element.height - 5} height={10} width={this.props.config.blotWidth} fill="transparent" cursor="s-resize"
+                        onMouseDown={e => this.beginMouseMove(e, index, "resize-height")}></rect>
+                    <rect x={this.props.config.blotWidth - 5} y={offset} height={offset + element.height - 5} width={10} fill="transparent" cursor="e-resize"
+                        onMouseDown={e => this.beginMouseMove(e, index, "resize-width")}></rect>
+                </>}
             </g>;
             
             offset += element.height + this.props.config.spacing;
