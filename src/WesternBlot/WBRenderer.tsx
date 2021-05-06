@@ -209,6 +209,8 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
         let strokeWidth = this.props.config.strokeWidth;
         const initialOffset = 100;
         let offset = initialOffset;
+
+        let editorLayer: JSX.Element[] = [];
         let elementComponents = this.props.elements.map((element, index) => {
             let selected = this.props.selectedElementIndex === index;
             let imageScale = this.props.config.blotWidth / element.boundingBox.width;
@@ -244,7 +246,8 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                     style={{ cursor: selected ? (this.state.mouseMoveAction !== undefined ? 'grabbing' : 'grab') : 'pointer' }}></rect>}
                 
                 { /* Render the label */}
-                <text y={offset + element.height * 0.5} x={this.props.config.blotWidth + this.props.config.elementLabelSpacing} dominantBaseline="central">{element.label}</text>
+                {this.state.rendering && <text y={offset + element.height * 0.5} x={this.props.config.blotWidth + this.props.config.elementLabelSpacing}
+                    dominantBaseline="central">{element.label}</text>}
                 
                 { /* Render editor utilities */}
                 { ! this.state.rendering && <>
@@ -255,32 +258,51 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                 </>}
             </g>;
             
+            editorLayer.push(<input type="text"
+                key={"label-editor-" + index}
+                value={element.label}
+                onChange={ev => this.props.updateElement({ ...element, label: ev.target.value }, index)}
+                className="borderless-input"
+                style={{
+                    position: "absolute",
+                    left: `${this.props.config.blotWidth + this.props.config.elementLabelSpacing}px`,
+                    top: `calc(${offset + element.height * 0.5}px - 1em)`,
+                    height: "2em",
+                    width: this.props.config.blotWidth - this.props.config.elementLabelSpacing
+                }}
+                onFocus={() => this.props.selectElement(index)}
+            />)
+
             offset += element.height + this.props.config.elementSpacing;
-            
+
             return result;
         });
+
         return <>
             <div className="buttons">
                 <a className="button" onClick={() => this.props.addNewElement()}>Add element</a>
                 <a className="button" onClick={() => this.saveSvg()}>Download SVG</a>
                 <a className="button" onClick={() => this.loadFile()}>Load</a>
             </div>
-            <svg ref={e => this.svgElement = e} width={this.props.config.blotWidth * 2} height={offset + 100}>
-                { /* Render well labels */}
-                {Array.from(Array(this.props.config.numberOfWells).keys()).map(index => <text key={"well-label-" + index}
-                    x={this.props.config.wellOutsideSpacing + (this.props.config.blotWidth - this.props.config.wellOutsideSpacing * 2) / this.props.config.numberOfWells * (index + 0.5)}
-                    y={initialOffset - this.props.config.wellLabelSpacing - 5}
-                    textAnchor={this.state.rendering ? "left" : "middle"}>{index + 1}</text>)}
-                {Array.from(Array(this.props.config.numberOfWells).keys()).map(index => <line key={"well-label-underline" + index}
-                    x1={this.props.config.wellOutsideSpacing + (this.props.config.blotWidth - this.props.config.wellOutsideSpacing * 2) / this.props.config.numberOfWells * index + this.props.config.wellSpacing * 0.5}
-                    x2={this.props.config.wellOutsideSpacing + (this.props.config.blotWidth - this.props.config.wellOutsideSpacing * 2) / this.props.config.numberOfWells * (index + 1) - this.props.config.wellSpacing * 0.5}
-                    y1={initialOffset - this.props.config.wellLabelSpacing}
-                    y2={initialOffset - this.props.config.wellLabelSpacing}
-                    stroke="black" strokeWidth={this.props.config.strokeWidth} />)}
-                
-                { /* Render the elements */ }
-                {elementComponents}
-            </svg>
+            <div style={{position: 'relative', fontSize: "1rem"}}>
+                <svg ref={e => this.svgElement = e} width={this.props.config.blotWidth * 2} height={offset + 100}>
+                    { /* Render well labels */}
+                    {Array.from(Array(this.props.config.numberOfWells).keys()).map(index => <text key={"well-label-" + index}
+                        x={this.props.config.wellOutsideSpacing + (this.props.config.blotWidth - this.props.config.wellOutsideSpacing * 2) / this.props.config.numberOfWells * (index + 0.5)}
+                        y={initialOffset - this.props.config.wellLabelSpacing - 5}
+                        textAnchor={this.state.rendering ? "left" : "middle"}>{index + 1}</text>)}
+                    {Array.from(Array(this.props.config.numberOfWells).keys()).map(index => <line key={"well-label-underline" + index}
+                        x1={this.props.config.wellOutsideSpacing + (this.props.config.blotWidth - this.props.config.wellOutsideSpacing * 2) / this.props.config.numberOfWells * index + this.props.config.wellSpacing * 0.5}
+                        x2={this.props.config.wellOutsideSpacing + (this.props.config.blotWidth - this.props.config.wellOutsideSpacing * 2) / this.props.config.numberOfWells * (index + 1) - this.props.config.wellSpacing * 0.5}
+                        y1={initialOffset - this.props.config.wellLabelSpacing}
+                        y2={initialOffset - this.props.config.wellLabelSpacing}
+                        stroke="black" strokeWidth={this.props.config.strokeWidth} />)}
+                    
+                    { /* Render the elements */ }
+                    {elementComponents}
+                </svg>
+                {editorLayer}
+            </div>
         </>;
     }
 }

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { App } from './App';
-import { TabSet } from './Components/Tabset';
+import { TabSet } from './Components/TabSet';
 import { Config } from './Types/Config';
 import { ConfigEditor } from './ConfigEditor';
 import { ImageBrowser } from './ImageBrowser';
