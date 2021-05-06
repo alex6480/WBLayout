@@ -24,7 +24,7 @@ export class ReorderRenderer extends React.Component<IReorderRendererProps, {}>
         return <>
             {this.props.canUp && <>
                 <line x1={x} y1={y - 3} x2={x} y2={y - 20}
-                    stroke="red" stroke-width="8"
+                    stroke="red" strokeWidth="8"
                     markerEnd="url(#arrowhead)"
                     style={{ cursor: "pointer" }}
                     onClick={() => this.props.onUp()} />
@@ -37,7 +37,7 @@ export class ReorderRenderer extends React.Component<IReorderRendererProps, {}>
             
             {this.props.canDown && <>
                 <line x1={x} y1={y + 3} x2={x} y2={y + 20}
-                    stroke="red" stroke-width="8"
+                    stroke="red" strokeWidth="8"
                     markerEnd="url(#arrowhead)" style={{ cursor: "pointer" }}
                     onClick={() => this.props.onDown()} />
                 <polygon

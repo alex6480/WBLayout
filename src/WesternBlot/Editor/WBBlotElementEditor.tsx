@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { App } from '../../App';
 import { Config } from '../../Types/Config';
-import { ImageUploadButton } from '../../ImageBrowser';
 import { IImageObject } from '../../Types/IImageObject';
 import { WBBlotElement } from '../../Types/WBBlotElement';
 
@@ -11,12 +10,14 @@ export interface IWBBlotElementEditorProps
     onChange: (element: WBBlotElement) => void;
     images: { [id: number]: IImageObject };
     setImages: (images: {[id: number]: IImageObject }) => void;
+    uploadNewImage: () => Promise<IImageObject>;
 }
 
 export class WBBlotElementEditor extends React.Component<IWBBlotElementEditorProps, {}>
 {
-    private AddNewImage(image: IImageObject)
+    private async AddNewImage()
     {
+        let image = await this.props.uploadNewImage();
         let key = Object.keys(this.props.images).length > 0 ? Math.max(...Object.keys(this.props.images).map(i => Number(i))) + 1 : 1;
         this.props.setImages({
             ...this.props.images,
@@ -50,7 +51,7 @@ export class WBBlotElementEditor extends React.Component<IWBBlotElementEditorPro
                 <div className="field">
                     <div className="control">
                         { Object.keys(this.props.images).length === 0
-                            ? <ImageUploadButton images={this.props.images} addImage={image => this.AddNewImage(image)}>Add image</ImageUploadButton>
+                            ? <button className="button" onClick={() => this.AddNewImage()}>Add image</button>
                             : <div className="select">
                                 <select onChange={(e) => this.props.onChange({ ...element, imageIndex: e.target.value !== "no-image" ? Number(e.target.value) : undefined })}
                                     value={element.imageIndex === undefined || this.props.images[element.imageIndex] === undefined ? "no-image" : element.imageIndex}>
@@ -58,6 +59,7 @@ export class WBBlotElementEditor extends React.Component<IWBBlotElementEditorPro
                                     {Object.keys(this.props.images).map(id => <option key={id} value={id}>
                                         {this.props.images[Number(id)].name}
                                     </option>)}
+                                    <option onClick={() => this.AddNewImage()}>Add image</option>
                                 </select>
                             </div> }
                     </div>

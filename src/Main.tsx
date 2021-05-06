@@ -113,6 +113,38 @@ export class Main extends React.Component<IMainProps, IMainState>
         });
     }
 
+    private uploadNewImage() : Promise<IImageObject>
+    {
+        return new Promise(resolve => {
+            var inputElement = document.createElement("input");
+            inputElement.setAttribute("type", "file");
+            document.body.append(inputElement);
+            inputElement.onchange = (ev) => {
+                if (inputElement.files && inputElement.files.length) {
+                    var reader = new FileReader();
+                    reader.onload = () => {
+                        var dataURL = reader.result;
+                        let image = new Image();
+                        image.src = dataURL as string;
+                        image.onload = () => {
+                            resolve({
+                                data: dataURL as string,
+                                name: inputElement.files[0].name,
+                                size: {
+                                    width: image.width,
+                                    height: image.height
+                                }
+                            });
+                        }
+                    };
+                    reader.readAsDataURL(inputElement.files[0]);
+                }
+            }
+            inputElement.click();
+            document.body.removeChild(inputElement);
+        })
+    }
+
     private setConfig(config: Config)
     {
         // Go through all elements and make sure that the labels have the correct number of wells
@@ -231,6 +263,7 @@ export class Main extends React.Component<IMainProps, IMainState>
                                     element={selectedElement}
                                     images={this.state.images}
                                     setImages={images => this.setImages(images)}
+                                    uploadNewImage={() => this.uploadNewImage()}
                                     elementIndex={this.state.selectedElementIndex}
                                     updateElement={(element, index) => this.updateElement(element, index)} />
                                 : <div>Select an element to edit it</div>
@@ -242,6 +275,7 @@ export class Main extends React.Component<IMainProps, IMainState>
                         {
                             name: "Images",
                             content: <ImageBrowser app={this.props.app}
+                                uploadNewImage={() => this.uploadNewImage()}
                                 images={this.state.images}
                                 setImages={images => this.setImages(images)}
                                 viewImage={(index: number) => this.setState({ showingImageIndex: index })}

@@ -1,5 +1,5 @@
 {
-  "name": "WBLayout",
+  "name": "wb_layout",
   "version": "1.0.0",
   "description": "",
   "main": "script.js",
@@ -12,7 +12,8 @@
   "license": "ISC",
   "dependencies": {
     "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react-dom": "^17.0.2",
+    "utif": "^3.1.0"
   },
   "devDependencies": {
     "@types/react": "^17.0.4",
