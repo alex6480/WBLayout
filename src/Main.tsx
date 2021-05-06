@@ -11,6 +11,7 @@ import { WBImagePreview } from './WesternBlot/WBImagePreview';
 import { WBRenderer } from './WesternBlot/Renderer/WBRenderer';
 import { WBWellLabelElementEditor } from './WesternBlot/Editor/WBWellLabelElementEditor';
 import { WBElementEditor } from './WesternBlot/Editor/WBElementEditor';
+import UTIF from 'utif';
 
 export interface IMainProps
 {
@@ -123,18 +124,50 @@ export class Main extends React.Component<IMainProps, IMainState>
                 if (inputElement.files && inputElement.files.length) {
                     var reader = new FileReader();
                     reader.onload = () => {
-                        var dataURL = reader.result;
+                        var dataUrl = reader.result as string;
                         let image = new Image();
-                        image.src = dataURL as string;
-                        image.onload = () => {
-                            resolve({
-                                data: dataURL as string,
-                                name: inputElement.files[0].name,
-                                size: {
-                                    width: image.width,
-                                    height: image.height
-                                }
+                        image.src = dataUrl;
+
+                        if (dataUrl.indexOf("data:image/tiff;") == 0)
+                        {
+                            let base64_string = dataUrl.substr("data:image/tiff;base64,".length);
+                            let binary = Uint8Array.from(atob(base64_string), c => c.charCodeAt(0));
+                            let imageDataFiles = UTIF.decode(binary);
+                            imageDataFiles.forEach(ifd => UTIF.decodeImage(binary, ifd));
+                            let images = imageDataFiles.map(ifd => {
+                                var rgba = UTIF.toRGBA8(ifd);
+                                var canvas = document.createElement("canvas");
+                                canvas.width = ifd.width;
+                                canvas.height = ifd.height;
+                                var ctx = canvas.getContext("2d");
+                                var imgd = new ImageData(new Uint8ClampedArray(rgba.buffer), ifd.width, ifd.height);
+                                ctx.putImageData(imgd,0,0);
+
+                                return {
+                                    data: canvas.toDataURL(),
+                                    name: inputElement.files[0].name,
+                                    size: {
+                                        width: ifd.width,
+                                        height: ifd.height
+                                    }
+                                };
                             });
+
+                            console.log(images);
+                            resolve(images[0]);
+                        }
+                        else
+                        {
+                            image.onload = () => {
+                                resolve({
+                                    data: dataUrl,
+                                    name: inputElement.files[0].name,
+                                    size: {
+                                        width: image.width,
+                                        height: image.height
+                                    }
+                                });
+                            }
                         }
                     };
                     reader.readAsDataURL(inputElement.files[0]);

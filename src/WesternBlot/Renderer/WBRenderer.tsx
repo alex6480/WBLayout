@@ -49,7 +49,7 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
     }
 
     private saveSvg() {
-        let embedImages = false;
+        let embedImages = true;
         // Make a copy of the application state
         let data = JSON.parse(JSON.stringify({ config: this.props.config, images: this.props.images, elements: this.props.elements }));
         // Remove image data from the data array
