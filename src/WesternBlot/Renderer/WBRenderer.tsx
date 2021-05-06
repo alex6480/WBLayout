@@ -4,6 +4,7 @@ import { WBElement } from '../../Main';
 import { Config } from '../../Types/Config';
 import { IImageObject } from '../../Types/IImageObject';
 import { WBBlotElement } from '../../Types/WBBlotElement';
+import { ReorderRenderer } from './ReorderRenderer';
 import { WBElementRenderer } from './WBElementRenderer';
 import { WBWellLabelRowRenderer } from './WBWellLabelRowRenderer';
 
@@ -18,7 +19,7 @@ export interface IWBRendererProps
     updateElement: (element: WBElement, index: number) => void;
     addNewBlotElement: () => void;
     addNewWellLabelElement: () => void;
-    setElements: (elements: WBBlotElement[]) => void;
+    setElements: (elements: WBElement[]) => void;
 
     images: { [id: number]: IImageObject };
     setImages: (images: { [id: number]: IImageObject }) => void;
@@ -136,6 +137,7 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
         let editorLayer: JSX.Element[] = [];
 
         // Render the elements
+        let selectedElementPosition: number | undefined = undefined;
         let elements = this.props.elements.map((element, elementIndex) => {
             let selected = this.props.selectedElementIndex === elementIndex;
 
@@ -143,6 +145,8 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
             {
                 if (selected)
                 {
+                    selectedElementPosition = offset + element.height * 0.5;
+
                     // Add editable text field for the row label
                     editorLayer.push(<input type="text"
                         key={"well-label-editor-" + elementIndex}
@@ -152,7 +156,7 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                         style={{
                             color: "red",
                             position: "absolute",
-                            left: `${this.props.config.blotWidth + this.props.config.elementLabelSpacing}px`,
+                            left: `${this.props.config.blotWidth + this.props.config.elementLabelSpacing + 100}px`,
                             top: `calc(${offset - 10 + element.height}px - 1.1em)`,
                             height: "1.4em",
                             width: this.props.config.blotWidth,
@@ -181,7 +185,7 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                             style={{
                                 color: "red",
                                 position: "absolute",
-                                left: `${this.props.config.wellOutsideSpacing + labelRowWidth / this.props.config.numberOfWells * currentPosition + this.props.config.wellSpacing * 0.5}px`,
+                                left: `${this.props.config.wellOutsideSpacing + labelRowWidth / this.props.config.numberOfWells * currentPosition + this.props.config.wellSpacing * 0.5 + 100}px`,
                                 top: `calc(${offset - 10 + element.height}px - 1.1em)`,
                                 height: "1.4em",
                                 width: labelRowWidth / this.props.config.numberOfWells * label.width - this.props.config.wellSpacing,
@@ -226,6 +230,8 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
 
                 if (selected)
                 {
+                    selectedElementPosition = offset + element.height * 0.5;
+
                     // Add editable text field
                     editorLayer.push(<input type="text"
                         key={"label-editor-" + elementIndex}
@@ -235,7 +241,7 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                         style={{
                             color: "red",
                             position: "absolute",
-                            left: `${this.props.config.blotWidth + this.props.config.elementLabelSpacing}px`,
+                            left: `${this.props.config.blotWidth + this.props.config.elementLabelSpacing + 100}px`,
                             top: `calc(${offset + element.height * 0.5}px - 1em)`,
                             height: "2em",
                             width: this.props.config.blotWidth - this.props.config.elementLabelSpacing
@@ -256,8 +262,35 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                 <a className="button" onClick={() => this.loadFile()}>Load</a>
             </div>
             <div style={{position: 'relative', fontSize: "1rem"}}>
-                <svg ref={e => this.svgElement = e} width={this.props.config.blotWidth * 2} height={offset + 100}>
-                    {elements}
+                <svg ref={e => this.svgElement = e} width={this.props.config.blotWidth * 2 + (this.state.rendering ? 100 : 0)} height={offset + 100}>
+                    {this.state.rendering
+                        ? elements
+                        : <g transform="translate(100, 0)">
+                            {elements}
+                            { selectedElementPosition !== undefined && <ReorderRenderer
+                                x={-20} y={selectedElementPosition}
+                                canUp={this.props.selectedElementIndex != 0}
+                                onUp={() => {
+                                    this.props.setElements([
+                                        ...this.props.elements.slice(0, this.props.selectedElementIndex - 1),
+                                        this.props.elements[this.props.selectedElementIndex],
+                                        this.props.elements[this.props.selectedElementIndex - 1],
+                                        ...this.props.elements.slice(this.props.selectedElementIndex + 1),
+                                    ]);
+                                    this.props.selectElement(this.props.selectedElementIndex - 1);
+                                }}
+                                canDown={this.props.selectedElementIndex < this.props.elements.length - 1}
+                                onDown={() => {
+                                    this.props.setElements([
+                                        ...this.props.elements.slice(0, this.props.selectedElementIndex),
+                                        this.props.elements[this.props.selectedElementIndex + 1],
+                                        this.props.elements[this.props.selectedElementIndex],
+                                        ...this.props.elements.slice(this.props.selectedElementIndex + 2),
+                                    ]);
+                                    this.props.selectElement(this.props.selectedElementIndex + 1);
+                                }}
+                            />}
+                        </g>}
                 </svg>
                 {editorLayer}
             </div>
