@@ -34,18 +34,7 @@ interface IWBRendererState
     focusedIndex?: number;
     rendering: boolean;
     embedImages: boolean;
-    mouseMoveAction?: MouseMoveAction;
 }
-
-type MouseMoveActionType = "pan" | "resize-height" | "resize-width";
-type MouseMoveAction = {
-    mouseMoveHandler: (ev: MouseEvent) => void,
-    mouseUpHandler: (ev: MouseEvent) => void;
-    lastMouseX: number,
-    lastMouseY: number,
-    elementIndex: number,
-    type: MouseMoveActionType
-};
 
 export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererState>
 {
@@ -94,76 +83,6 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                 embedImages: true
             });
         });
-    }
-
-    private beginMouseMove(e: React.MouseEvent<SVGRectElement>, index: number, action: MouseMoveActionType)
-    {
-        let mouseMoveHandler = this.updateMouseMove.bind(this);
-        let mouseUpHandler = this.endMouseMove.bind(this);
-        window.addEventListener("mousemove", mouseMoveHandler);
-        window.addEventListener("mouseup", mouseUpHandler);
-        this.setState({
-            mouseMoveAction: {
-                lastMouseX: e.screenX,
-                lastMouseY: e.screenY,
-                elementIndex: index,
-                mouseMoveHandler: mouseMoveHandler,
-                mouseUpHandler: mouseUpHandler,
-                type: action,
-            }
-        });
-    }
-
-    private endMouseMove()
-    {
-        window.removeEventListener("mousemove", this.state.mouseMoveAction.mouseMoveHandler);
-        window.removeEventListener("mouseup", this.state.mouseMoveAction.mouseUpHandler);
-        this.setState({ mouseMoveAction: undefined });
-    }
-
-    private updateMouseMove(ev: MouseEvent)
-    {
-        if (this.state.mouseMoveAction !== undefined)
-        {
-            let deltaXUntransformed = ev.screenX - this.state.mouseMoveAction.lastMouseX;
-            let deltaYUntransformed = ev.screenY - this.state.mouseMoveAction.lastMouseY;
-            let pannedElement = this.props.elements[this.state.mouseMoveAction.elementIndex];
-                
-            // Rotate the mouse movement vector with the image, so the pan is relative to the rotated image
-            let cos = Math.cos(pannedElement.boundingBox.rotation / 180 * Math.PI);
-            let sin = Math.sin(pannedElement.boundingBox.rotation / 180 * Math.PI);
-            let deltaX = deltaXUntransformed * cos - deltaYUntransformed * sin;
-            let deltaY = deltaXUntransformed * sin + deltaYUntransformed * cos;
-
-            if (this.state.mouseMoveAction.type === "pan")
-            {
-                this.props.updateElement({
-                    ...pannedElement,
-                    boundingBox: {
-                        ...pannedElement.boundingBox,
-                        x: pannedElement.boundingBox.x - deltaX,
-                        y: pannedElement.boundingBox.y - deltaY,
-                    }
-                }, this.state.mouseMoveAction.elementIndex);
-            }
-            else if (this.state.mouseMoveAction.type === "resize-height")
-            {
-                this.props.updateElement({
-                    ...pannedElement,
-                    height: pannedElement.height + deltaYUntransformed,
-                }, this.state.mouseMoveAction.elementIndex);
-            }
-            else if (this.state.mouseMoveAction.type === "resize-width")
-            {
-                this.props.setConfig({
-                    ...this.props.config,
-                    blotWidth: this.props.config.blotWidth + deltaXUntransformed
-                });
-            }
-
-            this.state.mouseMoveAction.lastMouseX = ev.screenX;
-            this.state.mouseMoveAction.lastMouseY = ev.screenY;
-        }
     }
 
     private loadFile()
