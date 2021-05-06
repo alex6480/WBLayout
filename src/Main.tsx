@@ -10,6 +10,7 @@ import { WBElementEditor } from './WesternBlot/WBElementEditor';
 import { WBElementList } from './WesternBlot/WBElementList';
 import { WBImagePreview } from './WesternBlot/WBImagePreview';
 import { WBRenderer } from './WesternBlot/WBRenderer';
+import { WBWellLabelRowEditor } from './WesternBlot/WBWellLabelRowEditor';
 
 export interface IMainProps
 {
@@ -92,7 +93,7 @@ export class Main extends React.Component<IMainProps, IMainState>
     private addNewLabelRow() {
         this.setState({
             wellLabels: [{
-                height: 50,
+                height: 32,
                 labelText: "Label",
                 labels: Array.from(Array(this.state.config.numberOfWells).keys()).map(index => GetDefaultLabel(index))
             }, ...this.state.wellLabels]
@@ -134,6 +135,17 @@ export class Main extends React.Component<IMainProps, IMainState>
         });
     }
 
+    private updateWellLabelRow(newRow: WBWellLabelRow, index: number)
+    {
+        this.setState({
+            wellLabels: [
+                ...this.state.wellLabels.slice(0, index),
+                newRow,
+                ...this.state.wellLabels.slice(index + 1)
+            ]
+        });
+    }
+
     public render(): JSX.Element
     {
         return (
@@ -157,13 +169,7 @@ export class Main extends React.Component<IMainProps, IMainState>
                                     updateElement={(element, index) => this.updateElement(element, index)}
                                     addNewElement={() => this.addNewElement()}
                                     addNewLabelRow={() => this.addNewLabelRow()}
-                                    updateLabelRow={(row, index) => this.setState({
-                                        wellLabels: [
-                                            ...this.state.wellLabels.slice(0, index),
-                                            row,
-                                            ...this.state.wellLabels.slice(index + 1)
-                                        ]
-                                    })}
+                                    updateLabelRow={(row, index) => this.updateWellLabelRow(row, index)}
                                     selectLabelRow={index => this.setState({ selectedElementIndex: undefined, selectedLabelRowIndex: index })}
                                     setConfig={newConf => this.setState({ config: newConf })}
                                 />
@@ -190,7 +196,12 @@ export class Main extends React.Component<IMainProps, IMainState>
                                     elementIndex={this.state.selectedElementIndex}
                                     elements={this.state.elements}
                                     updateElement={(element, index) => this.updateElement(element, index)} />
-                                : <div>Select an element to edit it</div>
+                                : (this.state.selectedLabelRowIndex !== undefined
+                                    ? <WBWellLabelRowEditor
+                                        onChange={row => this.updateWellLabelRow(row, this.state.selectedLabelRowIndex)}
+                                        row={this.state.wellLabels[this.state.selectedLabelRowIndex]}
+                                    />
+                                    : <div>Select an element to edit it</div>)
                         },
                         {
                             name: "Configuration",
