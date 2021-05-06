@@ -21,18 +21,33 @@ interface IMainState
     config: Config;
     images: { [id: number]: IImageObject };
     elements: WBElement[];
+    wellLabels: WBWellLabelRow[];
     showingImageIndex?: number;
     selectedElementIndex?: number;
+    selectedLabelRowIndex?: number;
 }
+
+export var GetDefaultLabel = function (text: string | number): WBWellLabel
+{
+    return {
+        width: 1,
+        underline: false,
+        text: text.toString(),
+        justification: "center",
+        angle: 0,
+    }
+};
 
 export class Main extends React.Component<IMainProps, IMainState>
 {
     constructor(props: IMainProps) {
         super(props)
+
+        let numberOfWells = 10;
         this.state = {
             config: {
                 blotWidth: 400,
-                numberOfWells: 10,
+                numberOfWells: numberOfWells,
                 elementSpacing: 10,
                 strokeWidth: 2,
                 elementLabelSpacing: 10,
@@ -42,6 +57,11 @@ export class Main extends React.Component<IMainProps, IMainState>
             },
             images: {},
             elements: [],
+            wellLabels: [{
+                height: 50,
+                labelText: "Label",
+                labels: Array.from(Array(numberOfWells).keys()).map(index => GetDefaultLabel(index))
+            }],
             showingImageIndex: undefined
         };
     }
@@ -67,6 +87,16 @@ export class Main extends React.Component<IMainProps, IMainState>
                     }
                 }
             ]});
+    }
+
+    private addNewLabelRow() {
+        this.setState({
+            wellLabels: [{
+                height: 50,
+                labelText: "Label",
+                labels: Array.from(Array(this.state.config.numberOfWells).keys()).map(index => GetDefaultLabel(index))
+            }, ...this.state.wellLabels]
+        });
     }
 
     private setImages(images: { [id: number]: IImageObject })
@@ -118,12 +148,23 @@ export class Main extends React.Component<IMainProps, IMainState>
                                     images={this.state.images}
                                     config={this.state.config}
                                     elements={this.state.elements}
+                                    wellLabels={this.state.wellLabels}
                                     selectedElementIndex={this.state.selectedElementIndex}
+                                    selectedLabelRowIndex={this.state.selectedLabelRowIndex}
                                     setImages={images => this.setImages(images)}
                                     setElements={newElements => this.setState({ elements: newElements })}
-                                    selectElement={id => this.setState({ selectedElementIndex: id })}
+                                    selectElement={id => this.setState({ selectedElementIndex: id, selectedLabelRowIndex: undefined })}
                                     updateElement={(element, index) => this.updateElement(element, index)}
                                     addNewElement={() => this.addNewElement()}
+                                    addNewLabelRow={() => this.addNewLabelRow()}
+                                    updateLabelRow={(row, index) => this.setState({
+                                        wellLabels: [
+                                            ...this.state.wellLabels.slice(0, index),
+                                            row,
+                                            ...this.state.wellLabels.slice(index + 1)
+                                        ]
+                                    })}
+                                    selectLabelRow={index => this.setState({ selectedElementIndex: undefined, selectedLabelRowIndex: index })}
                                     setConfig={newConf => this.setState({ config: newConf })}
                                 />
                             </div>
@@ -141,7 +182,7 @@ export class Main extends React.Component<IMainProps, IMainState>
                 <div className="column is-one-third">
                     <TabSet tabs={[
                         {
-                            name: "Selected element",
+                            name: "Current selection",
                             content: this.state.selectedElementIndex !== undefined
                                 ? < WBElementEditor
                                     images={this.state.images}
@@ -162,17 +203,6 @@ export class Main extends React.Component<IMainProps, IMainState>
                                 setImages={images => this.setImages(images)}
                                 viewImage={(index: number) => this.setState({ showingImageIndex: index })}
                                 showingImageIndex={this.state.showingImageIndex}/>
-                        },
-                        {
-                            name: "Elements",
-                            content: <WBElementList
-                                config={this.state.config}
-                                elements={this.state.elements}
-                                images={this.state.images}
-                                setImages={images => this.setImages(images)}
-                                updateElement={(element, index) => this.updateElement(element, index)}
-                                setElements={newElements => this.setState({ elements: newElements })}
-                                addNewElement={() => this.addNewElement()}/>
                         }
                     ]} />
                 </div>
