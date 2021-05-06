@@ -64,7 +64,7 @@ export class Main extends React.Component<IMainProps, IMainState>
                     height: 32,
                     labelText: "Label",
                     labels: Array.from(Array(numberOfWells).keys()).map(index => GetDefaultLabel(index))
-                }
+                },
             ],
             showingImageIndex: undefined
         };
@@ -111,6 +111,53 @@ export class Main extends React.Component<IMainProps, IMainState>
             images: images,
             showingImageIndex: this.state.showingImageIndex !== undefined && images[this.state.showingImageIndex] === undefined ? undefined : this.state.showingImageIndex
         });
+    }
+
+    private setConfig(config: Config)
+    {
+        // Go through all elements and make sure that the labels have the correct number of wells
+        for (var elementIndex = 0; elementIndex < this.state.elements.length; elementIndex++)
+        {
+            let element = this.state.elements[elementIndex];
+            if (element.type == "well-label")
+            {
+                let modified = false;
+                let labels = [...element.labels];
+                let sumOfWidths = labels.map(label => label.width).reduce((a, b) => a + b, 0);
+                while (sumOfWidths < config.numberOfWells)
+                {
+                    modified = true;
+                    labels = [
+                        ...labels,
+                        GetDefaultLabel(sumOfWidths)
+                    ];
+                    sumOfWidths = labels.map(label => label.width).reduce((a, b) => a + b, 0);
+                }
+                while (sumOfWidths > config.numberOfWells)
+                {
+                    modified = true;
+                    let difference = sumOfWidths - config.numberOfWells;
+
+                    if (difference < labels[labels.length - 1].width)
+                    {
+                        labels[labels.length - 1].width = labels[labels.length - 1].width - difference;
+                    }
+                    else
+                    {
+                        labels = labels.slice(0, labels.length - 1);
+                    }
+                    sumOfWidths = labels.map(label => label.width).reduce((a, b) => a + b, 0);
+                    break;
+                }
+
+                if (modified)
+                {
+                    this.updateElement({ ...element, labels: labels }, elementIndex);
+                }
+            }
+        }
+
+        this.setState({ config: config });
     }
 
     private GetImage(index?: number): IImageObject
@@ -190,7 +237,7 @@ export class Main extends React.Component<IMainProps, IMainState>
                         },
                         {
                             name: "Configuration",
-                            content: <ConfigEditor config={this.state.config} setConfig={newConf => this.setState({ config: newConf })}/>
+                            content: <ConfigEditor config={this.state.config} setConfig={newConf => this.setConfig(newConf)}/>
                         },
                         {
                             name: "Images",
