@@ -4,9 +4,9 @@ import { WBElement } from '../../Main';
 import { Config } from '../../Types/Config';
 import { IImageObject } from '../../Types/IImageObject';
 import { WBBlotElement } from '../../Types/WBBlotElement';
-import { ReorderRenderer } from './ReorderRenderer';
 import { WBElementRenderer } from './WBElementRenderer';
 import { WBWellLabelRowRenderer } from './WBWellLabelRowRenderer';
+import { FaArrowDown, FaArrowUp, FaTrashAlt } from 'react-icons/fa';
 
 export interface IWBRendererProps
 {
@@ -267,32 +267,55 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                         ? elements
                         : <g transform="translate(100, 0)">
                             {elements}
-                            { selectedElementPosition !== undefined && <ReorderRenderer
-                                x={-20} y={selectedElementPosition}
-                                canUp={this.props.selectedElementIndex != 0}
-                                onUp={() => {
-                                    this.props.setElements([
-                                        ...this.props.elements.slice(0, this.props.selectedElementIndex - 1),
-                                        this.props.elements[this.props.selectedElementIndex],
-                                        this.props.elements[this.props.selectedElementIndex - 1],
-                                        ...this.props.elements.slice(this.props.selectedElementIndex + 1),
-                                    ]);
-                                    this.props.selectElement(this.props.selectedElementIndex - 1);
-                                }}
-                                canDown={this.props.selectedElementIndex < this.props.elements.length - 1}
-                                onDown={() => {
-                                    this.props.setElements([
-                                        ...this.props.elements.slice(0, this.props.selectedElementIndex),
-                                        this.props.elements[this.props.selectedElementIndex + 1],
-                                        this.props.elements[this.props.selectedElementIndex],
-                                        ...this.props.elements.slice(this.props.selectedElementIndex + 2),
-                                    ]);
-                                    this.props.selectElement(this.props.selectedElementIndex + 1);
-                                }}
-                            />}
                         </g>}
                 </svg>
                 {editorLayer}
+                {selectedElementPosition !== undefined && <>
+                    <button className="button is-small"
+                        style={{ position: "absolute", left: "25px", transform: "translate(-50%, -50%)", top: selectedElementPosition + "px" }}
+                        onClick={() => {
+                            this.props.setElements([
+                                ...this.props.elements.slice(0, this.props.selectedElementIndex),
+                                ...this.props.elements.slice(this.props.selectedElementIndex + 1)
+                            ]);
+                            this.props.selectElement(undefined);
+                        }}
+                    ><FaTrashAlt /></button>
+                    {this.props.selectedElementIndex != 0 && <button className="button is-small"
+                        style={{
+                            position: "absolute",
+                            left: "75px",
+                            transform: "translate(-50%, -50%)",
+                            top: selectedElementPosition - (this.props.selectedElementIndex != this.props.elements.length - 1 ? 20 : 0) + "px"
+                        }}
+                        onClick={() => {
+                            this.props.setElements([
+                                ...this.props.elements.slice(0, this.props.selectedElementIndex - 1),
+                                this.props.elements[this.props.selectedElementIndex],
+                                this.props.elements[this.props.selectedElementIndex - 1],
+                                ...this.props.elements.slice(this.props.selectedElementIndex + 1),
+                            ]);
+                            this.props.selectElement(this.props.selectedElementIndex - 1);
+                        }}
+                    ><FaArrowUp /></button>}
+                    {this.props.selectedElementIndex != this.props.elements.length - 1 && <button className="button is-small"
+                        style={{
+                            position: "absolute",
+                            left: "75px",
+                            transform: "translate(-50%, -50%)",
+                            top: selectedElementPosition + (this.props.selectedElementIndex != 0 ? 20 : 0) + "px"
+                        }}
+                        onClick={() => {
+                            this.props.setElements([
+                                ...this.props.elements.slice(0, this.props.selectedElementIndex),
+                                this.props.elements[this.props.selectedElementIndex + 1],
+                                this.props.elements[this.props.selectedElementIndex],
+                                ...this.props.elements.slice(this.props.selectedElementIndex + 2),
+                            ]);
+                            this.props.selectElement(this.props.selectedElementIndex + 1);
+                        }}
+                    ><FaArrowDown /></button>}
+                </>}
             </div>
         </>;
     }
