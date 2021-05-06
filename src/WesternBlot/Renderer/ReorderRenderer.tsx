@@ -21,27 +21,29 @@ export class ReorderRenderer extends React.Component<IReorderRendererProps, {}>
     {
         let x = this.props.x;
         let y = this.props.y;
+        let offset = (this.props.canUp ? 15 : 0) + (this.props.canDown ? -15 : 0);
+
         return <>
             {this.props.canUp && <>
-                <line x1={x} y1={y - 3} x2={x} y2={y - 20}
+                <line x1={x} y1={y - 3 + offset} x2={x} y2={y - 20 + offset}
                     stroke="red" strokeWidth="8"
                     markerEnd="url(#arrowhead)"
                     style={{ cursor: "pointer" }}
                     onClick={() => this.props.onUp()} />
                 <polygon
-                    points={`${x - 10} ${y - 20}, ${x} ${y - 30}, ${x + 10} ${y - 20}`}
+                    points={`${x - 10} ${y - 20 + offset}, ${x} ${y - 30 + offset}, ${x + 10} ${y - 20 + offset}`}
                     style={{ cursor: "pointer" }}
                     fill="red"
                     onClick={() => this.props.onUp()} />
             </>}
             
             {this.props.canDown && <>
-                <line x1={x} y1={y + 3} x2={x} y2={y + 20}
+                <line x1={x} y1={y + 3 + offset} x2={x} y2={y + 20+ offset}
                     stroke="red" strokeWidth="8"
                     markerEnd="url(#arrowhead)" style={{ cursor: "pointer" }}
                     onClick={() => this.props.onDown()} />
                 <polygon
-                    points={`${x - 10} ${y + 20}, ${x} ${y + 30}, ${x + 10} ${y + 20}`}
+                    points={`${x - 10} ${y + 20 + offset}, ${x} ${y + 30+ offset}, ${x + 10} ${y + 20+ offset}`}
                     style={{ cursor: "pointer" }}
                     fill="red"
                     onClick={() => this.props.onDown()} />
