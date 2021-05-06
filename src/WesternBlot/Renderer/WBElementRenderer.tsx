@@ -2,7 +2,7 @@ import * as React from 'react';
 import { App } from '../../App';
 import { Config } from '../../Types/Config';
 import { IImageObject } from '../../Types/IImageObject';
-import { WBElement } from '../../Types/WBElement';
+import { WBBlotElement } from '../../Types/WBBlotElement';
 import { WBWellLabelRowRenderer } from './WBWellLabelRowRenderer';
 
 export interface IWBElementRendererProps
@@ -15,11 +15,11 @@ export interface IWBElementRendererProps
     selected: boolean;
 
     embedImages: boolean;
-    element: WBElement;
+    element: WBBlotElement;
     rendering: boolean;
     image: IImageObject;
     select: () => void;
-    onChange: (element: WBElement) => void;
+    onChange: (element: WBBlotElement) => void;
 }
 
 interface IWBElementRendererState

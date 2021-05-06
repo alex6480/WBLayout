@@ -2,16 +2,16 @@ import * as React from 'react';
 import { App } from '../../App';
 import { Config } from '../../Types/Config';
 import { IImageObject } from '../../Types/IImageObject';
-import { WBElement } from '../../Types/WBElement';
+import { WBBlotElement } from '../../Types/WBBlotElement';
 
 export interface IWBWellLabelRowRendererProps
 {
     config: Config;
 
-    labelRow: WBWellLabelRow;
+    labelRow: WBWellLabelElement;
     selected: boolean;
     select: () => void;
-    onChange: (labelRow: WBWellLabelRow) => void;
+    onChange: (labelRow: WBWellLabelElement) => void;
 
     offset: number;
     rendering: boolean;
@@ -101,12 +101,16 @@ export class WBWellLabelRowRenderer extends React.Component<IWBWellLabelRowRende
 
         return <g onClick={() => this.props.select()} style={{ cursor: selected ? "default" : "pointer" }}>
             { /* Rectangle for outline and selection */}
-            {!this.props.rendering && <rect x={0} y={offset - row.height} width={this.props.config.blotWidth} height={offset}
-                fill={selected ? "none" : "transparent"} />}
+            {!this.props.rendering && <rect x={0} y={offset} width={this.props.config.blotWidth} height={row.height}
+                fill={selected ? "none" : "transparent"}
+                stroke="red"
+                strokeWidth={selected ? 2 : 0}
+                strokeDasharray="2,2"
+            />}
             
             { /* Render the label */}
             {(this.props.rendering || !selected) && <text
-                y={offset - this.props.config.wellLabelSpacing - 5}
+                y={offset + row.height - 10}
                 x={this.props.config.blotWidth + this.props.config.elementLabelSpacing}>
                 {row.labelText}
             </text>}
@@ -114,7 +118,7 @@ export class WBWellLabelRowRenderer extends React.Component<IWBWellLabelRowRende
             { /* Add helpers to allow merging/splitting of labels */}
             {!this.props.rendering && selected && Array.from(Array(this.props.config.numberOfWells - 1).keys()).map(position => <rect key={"well-label-split-merge-helper-" + position}
                 x={this.props.config.wellOutsideSpacing + labelRowWidth / this.props.config.numberOfWells * (position + 1) - this.props.config.wellSpacing * 0.5}
-                y={offset - row.height}
+                y={offset}
                 width={this.props.config.wellSpacing}
                 height={row.height}
                 fill="transparent"
@@ -128,7 +132,7 @@ export class WBWellLabelRowRenderer extends React.Component<IWBWellLabelRowRende
                 if (label.justification == "end") labelX += label.width * labelRowWidth / this.props.config.numberOfWells - this.props.config.wellSpacing * 0.5;
                 if (label.angled || label.justification == "middle") labelX += 0.5 * label.width * labelRowWidth / this.props.config.numberOfWells;
 
-                let labelY = offset - this.props.config.wellLabelSpacing - 5;
+                let labelY = offset + row.height - 10;
                 let result = <g key={"well-label-" + labelIndex}>
                     { /* The text */}
                     {!selected && <text key={"well-label-" + labelIndex}
@@ -143,16 +147,16 @@ export class WBWellLabelRowRenderer extends React.Component<IWBWellLabelRowRende
                     {(!this.props.rendering || label.underline) && <line key={"well-label-underline" + labelIndex}
                         x1={this.props.config.wellOutsideSpacing + labelRowWidth / this.props.config.numberOfWells * currentPosition + this.props.config.wellSpacing * 0.5}
                         x2={this.props.config.wellOutsideSpacing + labelRowWidth / this.props.config.numberOfWells * (currentPosition + label.width) - this.props.config.wellSpacing * 0.5}
-                        y1={offset - this.props.config.wellLabelSpacing}
-                        y2={offset - this.props.config.wellLabelSpacing}
+                        y1={offset + row.height - 5}
+                        y2={offset + row.height - 5}
                         stroke={ label.underline ? "black" : ( selected ? "red" : "transparent" ) }
                         strokeWidth={this.props.config.strokeWidth} />}
                     { /* Add a thicker helper line that makes it easier to click the border */}
                     {!this.props.rendering && selected && <line key={"well-label-underline-helper" + labelIndex}
                         x1={this.props.config.wellOutsideSpacing + labelRowWidth / this.props.config.numberOfWells * currentPosition + this.props.config.wellSpacing * 0.5}
                         x2={this.props.config.wellOutsideSpacing + labelRowWidth / this.props.config.numberOfWells * (currentPosition + label.width) - this.props.config.wellSpacing * 0.5}
-                        y1={offset - this.props.config.wellLabelSpacing}
-                        y2={offset - this.props.config.wellLabelSpacing}
+                        y1={offset + row.height}
+                        y2={offset + row.height}
                         stroke="transparent"
                         strokeWidth={10}
                         style={{ cursor: 'pointer' }}

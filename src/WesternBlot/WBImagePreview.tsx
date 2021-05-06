@@ -3,16 +3,14 @@ import { App } from '../App';
 import { Config } from '../Types/Config';
 import { rotateVector, Vector } from '../helpers';
 import { IImageObject } from '../Types/IImageObject';
-import { WBElement } from '../Types/WBElement';
+import { WBBlotElement } from '../Types/WBBlotElement';
 
 export interface IWBImagePreviewProps
 {
-    elements: WBElement[];
-    images: { [id: number]: IImageObject }
-    selectedElementIndex: number;
+    element: WBBlotElement;
+    image: IImageObject;
     config: Config;
-    getImage: (id: number) => IImageObject;
-    updateElement: (element: WBElement, index: number) => void;
+    updateElement: (element: WBBlotElement) => void;
 }
 
 type actionType = "pan" | "scale-x+" | "scale-y+" | "scale-x-" | "scale-y-" | "scale-x+y+" | "scale-x+y-" | "scale-x-y+" | "scale-x-y-" | "rotate";
@@ -37,7 +35,7 @@ export class WBImagePreview extends React.Component<IWBImagePreviewProps, {}>
             lastMouseY: e.clientY,
             mouseMoveHandler: this.updatePan.bind(this),
             mouseUpHandler: this.endMouseMove.bind(this),
-            initialRotation: this.props.elements[this.props.selectedElementIndex].boundingBox.rotation,
+            initialRotation: this.props.element.boundingBox.rotation,
             action
         };
         window.addEventListener("mousemove", this.currentMouseMoveAction.mouseMoveHandler);
@@ -53,7 +51,7 @@ export class WBImagePreview extends React.Component<IWBImagePreviewProps, {}>
 
     private updatePan(ev: MouseEvent)
     {
-        let selectedElement = this.props.elements[this.props.selectedElementIndex];
+        let selectedElement = this.props.element;
         if (this.currentMouseMoveAction === undefined)
         {
             return;
@@ -70,7 +68,7 @@ export class WBImagePreview extends React.Component<IWBImagePreviewProps, {}>
             }
             let angle = (Math.atan2(relativeCoords.b, relativeCoords.a) - Math.atan2(lastRelativeCoords.b, lastRelativeCoords.a)) * 180 / Math.PI;
             
-            this.props.updateElement({ ...selectedElement, boundingBox: { ...selectedElement.boundingBox, rotation: this.currentMouseMoveAction.initialRotation + angle }}, this.props.selectedElementIndex);
+            this.props.updateElement({ ...selectedElement, boundingBox: { ...selectedElement.boundingBox, rotation: this.currentMouseMoveAction.initialRotation + angle }});
         }
         else
         {
@@ -131,7 +129,7 @@ export class WBImagePreview extends React.Component<IWBImagePreviewProps, {}>
             updatedElement.boundingBox.x += rotatedOffset.a;
             updatedElement.boundingBox.y += rotatedOffset.b;
 
-            this.props.updateElement(updatedElement, this.props.selectedElementIndex);
+            this.props.updateElement(updatedElement);
             this.currentMouseMoveAction.lastMouseX = ev.clientX;
             this.currentMouseMoveAction.lastMouseY = ev.clientY;
         }
@@ -139,8 +137,8 @@ export class WBImagePreview extends React.Component<IWBImagePreviewProps, {}>
 
     public render(): JSX.Element
     {
-        let element = this.props.elements[this.props.selectedElementIndex];
-        let image = this.props.getImage(element.imageIndex);
+        let element = this.props.element;
+        let image = this.props.image;
         let bbHeight = element.height * element.boundingBox.width / this.props.config.blotWidth;
         let grabSize = 10;
         let sideSpacing = this.props.config.wellOutsideSpacing * element.boundingBox.width / this.props.config.blotWidth;

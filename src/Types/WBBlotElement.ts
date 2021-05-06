@@ -1,5 +1,6 @@
-export type WBElement =
+export type WBBlotElement =
 {
+    type: "blot",
     label: string,
     imageIndex?: number,
     height: number,

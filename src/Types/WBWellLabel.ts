@@ -1,4 +1,5 @@
-type WBWellLabelRow = {
+type WBWellLabelElement = {
+    type: "well-label"
     height: number,
     labelText: string,
     labels: WBWellLabel[];

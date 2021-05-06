@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { App } from '../App';
-import { Config } from '../Types/Config';
-import { ImageUploadButton } from '../ImageBrowser';
-import { IImageObject } from '../Types/IImageObject';
-import { WBElement } from '../Types/WBElement';
+import { App } from '../../App';
+import { Config } from '../../Types/Config';
+import { ImageUploadButton } from '../../ImageBrowser';
+import { IImageObject } from '../../Types/IImageObject';
+import { WBBlotElement } from '../../Types/WBBlotElement';
 
 export interface IWBWellLabelEditorProps
 {

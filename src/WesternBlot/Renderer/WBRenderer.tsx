@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { App } from '../../App';
+import { WBElement } from '../../Main';
 import { Config } from '../../Types/Config';
 import { IImageObject } from '../../Types/IImageObject';
-import { WBElement } from '../../Types/WBElement';
+import { WBBlotElement } from '../../Types/WBBlotElement';
 import { WBElementRenderer } from './WBElementRenderer';
 import { WBWellLabelRowRenderer } from './WBWellLabelRowRenderer';
 
@@ -15,14 +16,9 @@ export interface IWBRendererProps
     selectedElementIndex: number;
     selectElement: (id: number) => void;
     updateElement: (element: WBElement, index: number) => void;
-    addNewElement: () => void;
-    setElements: (elements: WBElement[]) => void;
-
-    wellLabels: WBWellLabelRow[];
-    selectedLabelRowIndex: number;
-    selectLabelRow: (index: number) => void;
-    addNewLabelRow: () => void;
-    updateLabelRow: (labelRow: WBWellLabelRow, index: number) => void;
+    addNewBlotElement: () => void;
+    addNewWellLabelElement: () => void;
+    setElements: (elements: WBBlotElement[]) => void;
 
     images: { [id: number]: IImageObject };
     setImages: (images: { [id: number]: IImageObject }) => void;
@@ -135,134 +131,133 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
 
     public render(): JSX.Element
     {
-        let strokeWidth = this.props.config.strokeWidth;
         let offset = 20;
 
         let editorLayer: JSX.Element[] = [];
 
-        // Render the well labels
-        let wellLabels = this.props.wellLabels.map((row, rowIndex) => {
-            let selected = this.props.selectedLabelRowIndex === rowIndex;
-            offset += row.height;
+        // Render the elements
+        let elements = this.props.elements.map((element, elementIndex) => {
+            let selected = this.props.selectedElementIndex === elementIndex;
 
-            if (selected)
+            if (element.type === "well-label")
             {
-                // Add editable text field for the row label
-                editorLayer.push(<input type="text"
-                    key={"well-label-editor-" + rowIndex}
-                    value={row.labelText}
-                    onChange={ev => this.props.updateLabelRow({ ...row, labelText: ev.target.value }, rowIndex)}
-                    className="borderless-input"
-                    style={{
-                        color: "red",
-                        position: "absolute",
-                        left: `${this.props.config.blotWidth + this.props.config.elementLabelSpacing}px`,
-                        top: `calc(${offset - this.props.config.wellLabelSpacing - 5}px - 1.1em)`,
-                        height: "1.4em",
-                        width: this.props.config.blotWidth,
-                    }}
-                />);
-                
-                // Add editable text fields for the well labels
-                let currentPosition = 0;
-                let labelRowWidth = (this.props.config.blotWidth - this.props.config.wellOutsideSpacing * 2);
-                row.labels.map((label, labelIndex) => {
+                if (selected)
+                {
+                    // Add editable text field for the row label
                     editorLayer.push(<input type="text"
-                        key={"well-label-editor-" + rowIndex + "-" + labelIndex}
-                        value={label.text}
-                        onChange={ev => this.props.updateLabelRow({
-                            ...row,
-                            labels: [
-                                ...row.labels.slice(0, labelIndex),
-                                {
-                                    ...row.labels[labelIndex],
-                                    text: ev.target.value
-                                },
-                                ...row.labels.slice(labelIndex + 1)
-                            ]
-                        }, rowIndex)}
+                        key={"well-label-editor-" + elementIndex}
+                        value={element.labelText}
+                        onChange={ev => this.props.updateElement({ ...element, labelText: ev.target.value }, elementIndex)}
                         className="borderless-input"
                         style={{
                             color: "red",
                             position: "absolute",
-                            left: `${this.props.config.wellOutsideSpacing + labelRowWidth / this.props.config.numberOfWells * currentPosition + this.props.config.wellSpacing * 0.5}px`,
-                            top: `calc(${offset - this.props.config.wellLabelSpacing - 5}px - 1.1em)`,
+                            left: `${this.props.config.blotWidth + this.props.config.elementLabelSpacing}px`,
+                            top: `calc(${offset - 10 + element.height}px - 1.1em)`,
                             height: "1.4em",
-                            width: labelRowWidth / this.props.config.numberOfWells * label.width - this.props.config.wellSpacing,
-                            textAlign: label.justification == "middle" ? "center" : label.justification
+                            width: this.props.config.blotWidth,
                         }}
                     />);
-                    currentPosition += label.width;
-                })
+                    
+                    // Add editable text fields for the well labels
+                    let currentPosition = 0;
+                    let labelRowWidth = (this.props.config.blotWidth - this.props.config.wellOutsideSpacing * 2);
+                    element.labels.map((label, labelIndex) => {
+                        editorLayer.push(<input type="text"
+                            key={"well-label-editor-" + elementIndex + "-" + labelIndex}
+                            value={label.text}
+                            onChange={ev => this.props.updateElement({
+                                ...element,
+                                labels: [
+                                    ...element.labels.slice(0, labelIndex),
+                                    {
+                                        ...element.labels[labelIndex],
+                                        text: ev.target.value
+                                    },
+                                    ...element.labels.slice(labelIndex + 1)
+                                ]
+                            }, elementIndex)}
+                            className="borderless-input"
+                            style={{
+                                color: "red",
+                                position: "absolute",
+                                left: `${this.props.config.wellOutsideSpacing + labelRowWidth / this.props.config.numberOfWells * currentPosition + this.props.config.wellSpacing * 0.5}px`,
+                                top: `calc(${offset - 10 + element.height}px - 1.1em)`,
+                                height: "1.4em",
+                                width: labelRowWidth / this.props.config.numberOfWells * label.width - this.props.config.wellSpacing,
+                                textAlign: label.justification == "middle" ? "center" : label.justification
+                            }}
+                        />);
+                        currentPosition += label.width;
+                    })
+                }
+
+                let result = <WBWellLabelRowRenderer
+                    key={"well-label-row-" + elementIndex}
+                    config={this.props.config}
+                    labelRow={element}
+                    offset={offset}
+                    onChange={row => this.props.updateElement(row, elementIndex)}
+                    rendering={this.state.rendering}
+                    select={() => this.props.selectElement(elementIndex)}
+                    selected={selected}
+                />
+
+                offset += element.height + this.props.config.wellLabelSpacing;
+
+                return result;
             }
-
-            return <WBWellLabelRowRenderer
-                key={"well-label-row-" + rowIndex}
-                config={this.props.config}
-                labelRow={row}
-                offset={offset}
-                onChange={row => this.props.updateLabelRow(row, rowIndex)}
-                rendering={this.state.rendering}
-                select={() => this.props.selectLabelRow(rowIndex)}
-                selected={selected}
-            />
-        });
-
-        // Render element components
-        let elementComponents = this.props.elements.map((element, index) => {
-            let selected = this.props.selectedElementIndex === index;
-            let result = <WBElementRenderer
-                key={"blot-element-" + index}
-                config={this.props.config}
-                element={element}
-                embedImages={this.state.embedImages}
-                image={this.props.getImage(element.imageIndex)}
-                index={index}
-                offset={offset}
-                onChange={element => this.props.updateElement(element, index)}
-                rendering={this.state.rendering}
-                select={() => this.props.selectElement(index)}
-                selected={selected}
-                setConfig={this.props.setConfig}
-            />;
-
-            if (selected)
+            else if (element.type == "blot")
             {
-                // Add editable text field
-                editorLayer.push(<input type="text"
-                    key={"label-editor-" + index}
-                    value={element.label}
-                    onChange={ev => this.props.updateElement({ ...element, label: ev.target.value }, index)}
-                    className="borderless-input"
-                    style={{
-                        color: "red",
-                        position: "absolute",
-                        left: `${this.props.config.blotWidth + this.props.config.elementLabelSpacing}px`,
-                        top: `calc(${offset + element.height * 0.5}px - 1em)`,
-                        height: "2em",
-                        width: this.props.config.blotWidth - this.props.config.elementLabelSpacing
-                    }}
-                />);
-            }
+                let result = <WBElementRenderer
+                    key={"blot-element-" + elementIndex}
+                    config={this.props.config}
+                    element={element}
+                    embedImages={this.state.embedImages}
+                    image={this.props.getImage(element.imageIndex)}
+                    index={elementIndex}
+                    offset={offset}
+                    onChange={element => this.props.updateElement(element, elementIndex)}
+                    rendering={this.state.rendering}
+                    select={() => this.props.selectElement(elementIndex)}
+                    selected={selected}
+                    setConfig={this.props.setConfig}
+                />;
 
-            offset += element.height + this.props.config.elementSpacing;
-            return result;
+                if (selected)
+                {
+                    // Add editable text field
+                    editorLayer.push(<input type="text"
+                        key={"label-editor-" + elementIndex}
+                        value={element.label}
+                        onChange={ev => this.props.updateElement({ ...element, label: ev.target.value }, elementIndex)}
+                        className="borderless-input"
+                        style={{
+                            color: "red",
+                            position: "absolute",
+                            left: `${this.props.config.blotWidth + this.props.config.elementLabelSpacing}px`,
+                            top: `calc(${offset + element.height * 0.5}px - 1em)`,
+                            height: "2em",
+                            width: this.props.config.blotWidth - this.props.config.elementLabelSpacing
+                        }}
+                    />);
+                }
+
+                offset += element.height + this.props.config.elementSpacing;
+                return result;
+            }
         });
 
         return <>
             <div className="buttons">
-                <a className="button" onClick={() => this.props.addNewElement()}>Add element</a>
-                <a className="button" onClick={() => this.props.addNewLabelRow()}>Add Label</a>
+                <a className="button" onClick={() => this.props.addNewBlotElement()}>Add element</a>
+                <a className="button" onClick={() => this.props.addNewWellLabelElement()}>Add Label</a>
                 <a className="button" onClick={() => this.saveSvg()}>Download SVG</a>
                 <a className="button" onClick={() => this.loadFile()}>Load</a>
             </div>
             <div style={{position: 'relative', fontSize: "1rem"}}>
                 <svg ref={e => this.svgElement = e} width={this.props.config.blotWidth * 2} height={offset + 100}>
-                    { /* Render well labels */}
-                    {wellLabels}
-                    
-                    { /* Render the elements */ }
-                    {elementComponents}
+                    {elements}
                 </svg>
                 {editorLayer}
             </div>

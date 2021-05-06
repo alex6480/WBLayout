@@ -1,20 +1,19 @@
 import * as React from 'react';
-import { App } from '../App';
-import { Config } from '../Types/Config';
-import { ImageUploadButton } from '../ImageBrowser';
-import { IImageObject } from '../Types/IImageObject';
-import { WBElement } from '../Types/WBElement';
+import { App } from '../../App';
+import { Config } from '../../Types/Config';
+import { ImageUploadButton } from '../../ImageBrowser';
+import { IImageObject } from '../../Types/IImageObject';
+import { WBBlotElement } from '../../Types/WBBlotElement';
 
-export interface IWBElementEditorProps
+export interface IWBBlotElementEditorProps
 {
-    elements: WBElement[];
-    elementIndex: number;
+    element: WBBlotElement;
+    onChange: (element: WBBlotElement) => void;
     images: { [id: number]: IImageObject };
-    updateElement: (element: WBElement, index: number) => void;
     setImages: (images: {[id: number]: IImageObject }) => void;
 }
 
-export class WBElementEditor extends React.Component<IWBElementEditorProps, {}>
+export class WBBlotElementEditor extends React.Component<IWBBlotElementEditorProps, {}>
 {
     private AddNewImage(image: IImageObject)
     {
@@ -23,16 +22,15 @@ export class WBElementEditor extends React.Component<IWBElementEditorProps, {}>
             ...this.props.images,
             [key]: image
         });
-        this.props.updateElement({
-            ...this.props.elements[this.props.elementIndex],
+        this.props.onChange({
+            ...this.props.element,
             imageIndex: key,
-        }, this.props.elementIndex);
+        });
     }
 
     public render(): JSX.Element
     {
-        let index = this.props.elementIndex;
-        let element = this.props.elements[index];
+        let element = this.props.element;
         return <div>
             <h3 className="title is-4">General</h3>
             <div className="field">
@@ -41,7 +39,7 @@ export class WBElementEditor extends React.Component<IWBElementEditorProps, {}>
                     <div className="control">
                         <input className="input" type="text"
                             value={element.label}
-                            onChange={(e) => this.props.updateElement({...element, label: e.target.value}, index)} />
+                            onChange={(e) => this.props.onChange({...element, label: e.target.value})} />
                     </div>
                 </div>
             </div>
@@ -54,7 +52,7 @@ export class WBElementEditor extends React.Component<IWBElementEditorProps, {}>
                         { Object.keys(this.props.images).length === 0
                             ? <ImageUploadButton images={this.props.images} addImage={image => this.AddNewImage(image)}>Add image</ImageUploadButton>
                             : <div className="select">
-                                <select onChange={(e) => this.props.updateElement({ ...element, imageIndex: e.target.value !== "no-image" ? Number(e.target.value) : undefined }, index)}
+                                <select onChange={(e) => this.props.onChange({ ...element, imageIndex: e.target.value !== "no-image" ? Number(e.target.value) : undefined })}
                                     value={element.imageIndex === undefined || this.props.images[element.imageIndex] === undefined ? "no-image" : element.imageIndex}>
                                     {<option key="no-image" value="no-image" disabled={true}>Select an image</option>}
                                     {Object.keys(this.props.images).map(id => <option key={id} value={id}>
@@ -67,9 +65,10 @@ export class WBElementEditor extends React.Component<IWBElementEditorProps, {}>
             </div>
             <div className="field">
                 <label className="checkbox">
-                    <input type="checkbox" onChange={e => this.props.updateElement({
-                        ...element, imageProperties: { ...element.imageProperties, inverted: ! element.imageProperties.inverted }
-                    }, index)}
+                    <input type="checkbox" onChange={e => this.props.onChange({
+                            ...element,
+                            imageProperties: { ...element.imageProperties, inverted: !element.imageProperties.inverted }
+                        })}
                         checked={element.imageProperties.inverted}/>
                     Inverted
                 </label>
@@ -80,7 +79,7 @@ export class WBElementEditor extends React.Component<IWBElementEditorProps, {}>
                     <div className="control">
                         <input className="input" type="number"
                             value={element.imageProperties.brightness}
-                            onChange={(e) => this.props.updateElement({ ...element, imageProperties: { ...element.imageProperties, brightness: e.target.valueAsNumber } }, index)} />
+                            onChange={(e) => this.props.onChange({ ...element, imageProperties: { ...element.imageProperties, brightness: e.target.valueAsNumber } })} />
                     </div>
                     <p className="control">
                         <a className="button is-static">
@@ -95,7 +94,7 @@ export class WBElementEditor extends React.Component<IWBElementEditorProps, {}>
                     <div className="control">
                         <input className="input" type="number"
                             value={element.imageProperties.contrast}
-                            onChange={(e) => this.props.updateElement({ ...element, imageProperties: { ...element.imageProperties, contrast: e.target.valueAsNumber } }, index)} />
+                            onChange={(e) => this.props.onChange({ ...element, imageProperties: { ...element.imageProperties, contrast: e.target.valueAsNumber } })} />
                     </div>
                     <p className="control">
                         <a className="button is-static">
@@ -112,7 +111,7 @@ export class WBElementEditor extends React.Component<IWBElementEditorProps, {}>
                     <div className="control">
                         <input className="input" type="number"
                             value={element.boundingBox.x}
-                            onChange={(e) => this.props.updateElement({ ...element, boundingBox: { ...element.boundingBox, x: e.target.valueAsNumber } }, index)} />
+                            onChange={(e) => this.props.onChange({ ...element, boundingBox: { ...element.boundingBox, x: e.target.valueAsNumber } })} />
                     </div>
                     <p className="control">
                         <a className="button is-static">
@@ -127,7 +126,7 @@ export class WBElementEditor extends React.Component<IWBElementEditorProps, {}>
                     <div className="control">
                         <input className="input" type="number"
                             value={element.boundingBox.y}
-                            onChange={(e) => this.props.updateElement({ ...element, boundingBox: { ...element.boundingBox, y: e.target.valueAsNumber } }, index)} />
+                            onChange={(e) => this.props.onChange({ ...element, boundingBox: { ...element.boundingBox, y: e.target.valueAsNumber } })} />
                     </div>
                     <p className="control">
                         <a className="button is-static">
@@ -142,7 +141,7 @@ export class WBElementEditor extends React.Component<IWBElementEditorProps, {}>
                     <div className="control">
                         <input className="input" type="number"
                             value={element.boundingBox.width}
-                            onChange={(e) => this.props.updateElement({ ...element, boundingBox: { ...element.boundingBox, width: e.target.valueAsNumber } }, index)} />
+                            onChange={(e) => this.props.onChange({ ...element, boundingBox: { ...element.boundingBox, width: e.target.valueAsNumber } })} />
                     </div>
                     <p className="control">
                         <a className="button is-static">
@@ -157,7 +156,7 @@ export class WBElementEditor extends React.Component<IWBElementEditorProps, {}>
                     <div className="control">
                         <input className="input" type="number"
                             value={element.height}
-                            onChange={(e) => this.props.updateElement({...element, height: e.target.valueAsNumber}, index)} />
+                            onChange={(e) => this.props.onChange({...element, height: e.target.valueAsNumber})} />
                     </div>
                 </div>
             </div>
@@ -167,7 +166,7 @@ export class WBElementEditor extends React.Component<IWBElementEditorProps, {}>
                     <div className="control">
                         <input className="input" type="number"
                             value={element.boundingBox.rotation}
-                            onChange={(e) => this.props.updateElement({ ...element, boundingBox: { ...element.boundingBox, rotation: e.target.valueAsNumber } }, index)} />
+                            onChange={(e) => this.props.onChange({ ...element, boundingBox: { ...element.boundingBox, rotation: e.target.valueAsNumber } })} />
                     </div>
                     <p className="control">
                         <a className="button is-static">

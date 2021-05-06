@@ -1,22 +1,22 @@
 import * as React from 'react';
-import { App } from '../App';
-import { Config } from '../Types/Config';
-import { ImageUploadButton } from '../ImageBrowser';
-import { IImageObject } from '../Types/IImageObject';
-import { WBElement } from '../Types/WBElement';
+import { App } from '../../App';
+import { Config } from '../../Types/Config';
+import { ImageUploadButton } from '../../ImageBrowser';
+import { IImageObject } from '../../Types/IImageObject';
+import { WBBlotElement } from '../../Types/WBBlotElement';
 import { WBWellLabelEditor } from './WBWellLabelEditor';
 
-export interface IWBWellLabelRowEditorProps
+export interface IWBWellLabelelementEditorProps
 {
-    row: WBWellLabelRow;
-    onChange: (labelRow: WBWellLabelRow) => void;
+    element: WBWellLabelElement;
+    onChange: (labelRow: WBWellLabelElement) => void;
 }
 
-export class WBWellLabelRowEditor extends React.Component<IWBWellLabelRowEditorProps, {}>
+export class WBWellLabelElementEditor extends React.Component<IWBWellLabelelementEditorProps, {}>
 {
     public render(): JSX.Element
     {
-        let row = this.props.row;
+        let row = this.props.element;
         return <div>
             <h3 className="title is-4">General</h3>
             <div className="field">
