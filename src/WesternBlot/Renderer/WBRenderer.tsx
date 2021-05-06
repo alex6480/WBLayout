@@ -3,6 +3,7 @@ import { App } from '../../App';
 import { Config } from '../../Types/Config';
 import { IImageObject } from '../../Types/IImageObject';
 import { WBElement } from '../../Types/WBElement';
+import { WBElementRenderer } from './WBElementRenderer';
 import { WBWellLabelRowRenderer } from './WBWellLabelRowRenderer';
 
 export interface IWBRendererProps
@@ -291,54 +292,21 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
         // Render element components
         let elementComponents = this.props.elements.map((element, index) => {
             let selected = this.props.selectedElementIndex === index;
-            let imageScale = this.props.config.blotWidth / element.boundingBox.width;
-            let result = <g key={index}>
-                { /* Render the image with clipping */}
-                <clipPath id={"element-image-clip-" + index}>
-                    <rect x="0" y={offset} height={element.height} width={this.props.config.blotWidth}></rect>
-                </clipPath>
-                <g style={{ clipPath: "url(#element-image-clip-" + index + ")" }}>
-                    <image
-                        id={element.imageIndex !== undefined ? "image-" + element.imageIndex : undefined}
-                        width={this.props.getImage(element.imageIndex).size.width}
-                        height={this.props.getImage(element.imageIndex).size.height}
-                        transform={`scale(${imageScale}),` +
-                            `translate(${element.boundingBox.width * 0.5}, ${(element.height * 0.5 + offset) / imageScale}),` +
-                            `rotate(${-element.boundingBox.rotation})` +
-                            `translate(${-element.boundingBox.x}, ${-element.boundingBox.y})`}
-                        style={{ filter: `invert(${element.imageProperties.inverted ? 1 : 0}) brightness(${element.imageProperties.brightness}%) contrast(${element.imageProperties.contrast}%)`}}
-                        xlinkHref={this.state.embedImages ? this.props.getImage(element.imageIndex).data :  this.props.getImage(element.imageIndex).name}></image>
-                </g>
+            let result = <WBElementRenderer
+                key={"blot-element-" + index}
+                config={this.props.config}
+                element={element}
+                embedImages={this.state.embedImages}
+                image={this.props.getImage(element.imageIndex)}
+                index={index}
+                offset={offset}
+                onChange={element => this.props.updateElement(element, index)}
+                rendering={this.state.rendering}
+                select={() => this.props.selectElement(index)}
+                selected={selected}
+                setConfig={this.props.setConfig}
+            />;
 
-                { /* Render the outline */}
-                <rect x={strokeWidth * 0.5} y={offset + strokeWidth * 0.5} height={element.height - strokeWidth} width={this.props.config.blotWidth - strokeWidth}
-                    stroke={ selected && ! this.state.rendering ? "red" : "black"}
-                    strokeWidth={this.props.config.strokeWidth}
-                    fill="none"></rect>
-                {!this.state.rendering && <rect x={0} y={offset} height={element.height} width={this.props.config.blotWidth}
-                    fill="transparent"
-                    onMouseEnter={() => this.setState({ focusedIndex: index })}
-                    onMouseLeave={() => this.state.focusedIndex === index && this.setState({ focusedIndex: undefined })}
-                    onClick={() => this.props.selectElement(index)}
-                    onMouseDown={e => selected && this.beginMouseMove(e, index, "pan")}
-                    style={{ cursor: selected ? (this.state.mouseMoveAction !== undefined ? 'grabbing' : 'grab') : 'pointer' }}></rect>}
-                
-                { /* Render the label */}
-                {(this.state.rendering || !selected) && <text
-                    y={offset + element.height * 0.5}
-                    x={this.props.config.blotWidth + this.props.config.elementLabelSpacing}
-                    onClick={() => this.props.selectElement(index)}
-                    dominantBaseline="central">{element.label}</text>}
-                
-                { /* Render editor utilities */}
-                { ! this.state.rendering && <>
-                    <rect x={0} y={offset + element.height - 5} height={10} width={this.props.config.blotWidth} fill="transparent" cursor="s-resize"
-                        onMouseDown={e => this.beginMouseMove(e, index, "resize-height")}></rect>
-                    <rect x={this.props.config.blotWidth - 5} y={offset} height={offset + element.height - 5} width={10} fill="transparent" cursor="e-resize"
-                        onMouseDown={e => this.beginMouseMove(e, index, "resize-width")}></rect>
-                </>}
-            </g>;
-            
             if (selected)
             {
                 // Add editable text field
@@ -359,7 +327,6 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
             }
 
             offset += element.height + this.props.config.elementSpacing;
-
             return result;
         });
 
