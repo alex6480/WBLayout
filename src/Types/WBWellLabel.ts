@@ -8,6 +8,6 @@ type WBWellLabel = {
     width: number,
     underline: boolean,
     text: string,
-    justification: "left" | "right" | "middle",
+    justification: "start" | "middle" | "end",
     angled: boolean,
 }

@@ -31,16 +31,16 @@ export class WBWellLabelEditor extends React.Component<IWBWellLabelEditorProps, 
                 <label className="label">Justification</label>
                 <div className="field">
                     <div className="buttons">
-                        <button className={"button " + (label.justification == "left" ? "is-primary" : "")}
-                            onClick={() => this.props.onChange({ ...label, justification: "left" })}>
+                        <button className={"button " + (label.justification == "start" ? "is-primary" : "")}
+                            onClick={() => this.props.onChange({ ...label, justification: "start" })}>
                             Left
                         </button>
                         <button className={"button " + (label.justification == "middle" ? "is-primary" : "")}
                             onClick={() => this.props.onChange({ ...label, justification: "middle" })}>
                             Center
                         </button>
-                        <button className={"button " + (label.justification == "right" ? "is-primary" : "")}
-                            onClick={() => this.props.onChange({ ...label, justification: "right" })}>
+                        <button className={"button " + (label.justification == "end" ? "is-primary" : "")}
+                            onClick={() => this.props.onChange({ ...label, justification: "end" })}>
                             Right
                         </button>
                     </div>

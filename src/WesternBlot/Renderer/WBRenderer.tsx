@@ -1,8 +1,9 @@
 import * as React from 'react';
-import { App } from '../App';
-import { Config } from '../Types/Config';
-import { IImageObject } from '../Types/IImageObject';
-import { WBElement } from '../Types/WBElement';
+import { App } from '../../App';
+import { Config } from '../../Types/Config';
+import { IImageObject } from '../../Types/IImageObject';
+import { WBElement } from '../../Types/WBElement';
+import { WBWellLabelRowRenderer } from './WBWellLabelRowRenderer';
 
 export interface IWBRendererProps
 {
@@ -212,78 +213,6 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
         document.body.removeChild(inputElement);
     }
 
-    private updateWellLabel(label: WBWellLabel, rowIndex: number, wellIndex: number)
-    {
-        this.props.updateLabelRow({
-            ...this.props.wellLabels[rowIndex],
-            labels: [
-                ...this.props.wellLabels[rowIndex].labels.slice(0, wellIndex),
-                label,
-                ...this.props.wellLabels[rowIndex].labels.slice(wellIndex + 1),
-            ]
-        }, rowIndex);
-    }
-
-    private mergeSplitWellLabelAt(rowIndex: number, position: number)
-    {
-        let row = this.props.wellLabels[rowIndex];
-        let totalWidth = 0;
-
-        for (let index = 0; index < row.labels.length; index++)
-        {
-            let label = row.labels[index];
-            totalWidth += label.width;
-            if (totalWidth === position + 1)
-            {
-                this.props.updateLabelRow({
-                    ...row,
-                    labels: [
-                        ...row.labels.slice(0, index),
-                        {
-                            ...row.labels[index],
-                            width: row.labels[index].width + row.labels[index + 1].width,
-                            text: row.labels[index].text + "|" + row.labels[index + 1].text,
-                        },
-                        ...row.labels.slice(index + 2),
-                    ]
-                }, rowIndex);
-                break;
-            }
-            else if (totalWidth > position + 1)
-            {
-                let splitAt = position + 1 + label.width - totalWidth;
-                let textParts = row.labels[index].text.split("|");
-
-                let textA: string = row.labels[index].text;
-                let textB: string = textA;
-                if (textParts.length > splitAt)
-                {
-                    textA = textParts.slice(0, splitAt).join("|");
-                    textB = textParts.slice(splitAt).join("|");
-                }
-
-                this.props.updateLabelRow({
-                    ...row,
-                    labels: [
-                        ...row.labels.slice(0, index),
-                        {
-                            ...row.labels[index],
-                            width: splitAt,
-                            text: textA,
-                        },
-                        {
-                            ...row.labels[index],
-                            width: row.labels[index].width - splitAt,
-                            text: textB,
-                        },
-                        ...row.labels.slice(index + 1),
-                    ]
-                }, rowIndex);
-                break;
-            }
-        };
-    }
-
     public render(): JSX.Element
     {
         let strokeWidth = this.props.config.strokeWidth;
@@ -293,15 +222,12 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
 
         // Render the well labels
         let wellLabels = this.props.wellLabels.map((row, rowIndex) => {
-            let currentPosition = 0;
-            let labelRowWidth = (this.props.config.blotWidth - this.props.config.wellOutsideSpacing * 2);
             let selected = this.props.selectedLabelRowIndex === rowIndex;
-
             offset += row.height;
 
             if (selected)
             {
-                // Add editable text field for the label
+                // Add editable text field for the row label
                 editorLayer.push(<input type="text"
                     key={"well-label-editor-" + rowIndex}
                     value={row.labelText}
@@ -316,93 +242,50 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                         width: this.props.config.blotWidth,
                     }}
                 />);
+                
+                // Add editable text fields for the well labels
+                let currentPosition = 0;
+                let labelRowWidth = (this.props.config.blotWidth - this.props.config.wellOutsideSpacing * 2);
+                row.labels.map((label, labelIndex) => {
+                    editorLayer.push(<input type="text"
+                        key={"well-label-editor-" + rowIndex + "-" + labelIndex}
+                        value={label.text}
+                        onChange={ev => this.props.updateLabelRow({
+                            ...row,
+                            labels: [
+                                ...row.labels.slice(0, labelIndex),
+                                {
+                                    ...row.labels[labelIndex],
+                                    text: ev.target.value
+                                },
+                                ...row.labels.slice(labelIndex + 1)
+                            ]
+                        }, rowIndex)}
+                        className="borderless-input"
+                        style={{
+                            color: "red",
+                            position: "absolute",
+                            left: `${this.props.config.wellOutsideSpacing + labelRowWidth / this.props.config.numberOfWells * currentPosition + this.props.config.wellSpacing * 0.5}px`,
+                            top: `calc(${offset - this.props.config.wellLabelSpacing - 5}px - 1.1em)`,
+                            height: "1.4em",
+                            width: labelRowWidth / this.props.config.numberOfWells * label.width - this.props.config.wellSpacing,
+                            textAlign: label.justification == "middle" ? "center" : label.justification
+                        }}
+                    />);
+                    currentPosition += label.width;
+                })
             }
 
-            return <g key={"label-row-" + rowIndex} onClick={() => this.props.selectLabelRow(rowIndex)} style={{ cursor: selected ? "default" : "pointer" }}>
-                { /* Rectangle for outline and selection */}
-                {!this.state.rendering && <rect x={0} y={offset - row.height} width={this.props.config.blotWidth} height={offset}
-                    fill={selected ? "none" : "transparent"} />}
-                
-                { /* Render the label */}
-                {(this.state.rendering || !selected) && <text
-                    y={offset - this.props.config.wellLabelSpacing - 5}
-                    x={this.props.config.blotWidth + this.props.config.elementLabelSpacing}>
-                    {row.labelText}
-                </text>}
-
-                { /* Add helpers to allow merging/splitting of labels */}
-                {!this.state.rendering && selected && Array.from(Array(this.props.config.numberOfWells - 1).keys()).map(position => <rect key={"well-label-split-merge-helper-" + position}
-                    x={this.props.config.wellOutsideSpacing + labelRowWidth / this.props.config.numberOfWells * (position + 1) - this.props.config.wellSpacing * 0.5}
-                    y={offset - row.height}
-                    width={this.props.config.wellSpacing}
-                    height={row.height}
-                    fill="transparent"
-                    style={{ cursor: "e-resize" }}
-                    onClick={() => this.mergeSplitWellLabelAt(rowIndex, position)}
-                />)}
-
-                {row.labels.map((label, labelIndex) => {
-
-                    // Add editable text fields for the label text
-                    if (selected)
-                    {
-                        editorLayer.push(<input type="text"
-                            key={"well-label-editor-" + rowIndex + "-" + labelIndex}
-                            value={label.text}
-                            onChange={ev => this.updateWellLabel({ ...label, text: ev.target.value }, rowIndex, labelIndex)}
-                            className="borderless-input"
-                            style={{
-                                color: "red",
-                                position: "absolute",
-                                left: `${this.props.config.wellOutsideSpacing + labelRowWidth / this.props.config.numberOfWells * currentPosition + this.props.config.wellSpacing * 0.5}px`,
-                                top: `calc(${offset - this.props.config.wellLabelSpacing - 5}px - 1.1em)`,
-                                height: "1.4em",
-                                width: labelRowWidth / this.props.config.numberOfWells * label.width - this.props.config.wellSpacing,
-                                textAlign: label.justification == "middle" ? "center" : label.justification
-                            }}
-                        />);
-                    }
-
-                    let labelX = this.props.config.wellOutsideSpacing + labelRowWidth / this.props.config.numberOfWells * currentPosition;
-                    if (label.justification == "left") labelX += this.props.config.wellSpacing * 0.5;
-                    if (label.angled || label.justification == "middle") labelX += 0.5 * labelRowWidth / this.props.config.numberOfWells;
-                    if (label.justification == "right") labelX += 1 * labelRowWidth / this.props.config.numberOfWells - this.props.config.wellSpacing * 1.5;
-
-                    let labelY = offset - this.props.config.wellLabelSpacing - 5;
-                    let result = <g key={"well-label-" + labelIndex}>
-                        { /* The text */}
-                        {!selected && <text key={"well-label-" + labelIndex}
-                            x={labelX}
-                            y={labelY}
-                            textAnchor={label.angled ? "left" : label.justification}
-                            transform={label.angled ? `rotate(-${this.props.config.wellLabelAngle}, ${labelX}, ${labelY})` : ""}>
-                            {label.text}
-                        </text>}
-                        
-                        { /* The underline */ }
-                        {(!this.state.rendering || label.underline) && <line key={"well-label-underline" + labelIndex}
-                            x1={this.props.config.wellOutsideSpacing + labelRowWidth / this.props.config.numberOfWells * currentPosition + this.props.config.wellSpacing * 0.5}
-                            x2={this.props.config.wellOutsideSpacing + labelRowWidth / this.props.config.numberOfWells * (currentPosition + label.width) - this.props.config.wellSpacing * 0.5}
-                            y1={offset - this.props.config.wellLabelSpacing}
-                            y2={offset - this.props.config.wellLabelSpacing}
-                            stroke={ label.underline ? "black" : ( selected ? "red" : "transparent" ) }
-                            strokeWidth={this.props.config.strokeWidth} />}
-                        { /* Add a thicker helper line that makes it easier to click the border */}
-                        {!this.state.rendering && selected && <line key={"well-label-underline-helper" + labelIndex}
-                            x1={this.props.config.wellOutsideSpacing + labelRowWidth / this.props.config.numberOfWells * currentPosition + this.props.config.wellSpacing * 0.5}
-                            x2={this.props.config.wellOutsideSpacing + labelRowWidth / this.props.config.numberOfWells * (currentPosition + label.width) - this.props.config.wellSpacing * 0.5}
-                            y1={offset - this.props.config.wellLabelSpacing}
-                            y2={offset - this.props.config.wellLabelSpacing}
-                            stroke="transparent"
-                            strokeWidth={10}
-                            style={{ cursor: 'pointer' }}
-                            onClick={() => this.updateWellLabel({ ...label, underline: !label.underline }, rowIndex, labelIndex)} />}
-                    </g>;
-
-                    currentPosition += label.width;
-                    return result;
-                })}
-            </g>
+            return <WBWellLabelRowRenderer
+                key={"well-label-row-" + rowIndex}
+                config={this.props.config}
+                labelRow={row}
+                offset={offset}
+                onChange={row => this.props.updateLabelRow(row, rowIndex)}
+                rendering={this.state.rendering}
+                select={() => this.props.selectLabelRow(rowIndex)}
+                selected={selected}
+            />
         });
 
         // Render element components

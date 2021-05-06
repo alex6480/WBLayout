@@ -9,7 +9,7 @@ import { WBElement } from './Types/WBElement';
 import { WBElementEditor } from './WesternBlot/WBElementEditor';
 import { WBElementList } from './WesternBlot/WBElementList';
 import { WBImagePreview } from './WesternBlot/WBImagePreview';
-import { WBRenderer } from './WesternBlot/WBRenderer';
+import { WBRenderer } from './WesternBlot/Renderer/WBRenderer';
 import { WBWellLabelRowEditor } from './WesternBlot/WBWellLabelRowEditor';
 
 export interface IMainProps
