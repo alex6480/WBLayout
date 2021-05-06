@@ -99,7 +99,7 @@ export class WBWellLabelRowRenderer extends React.Component<IWBWellLabelRowRende
         let labelRowWidth = (this.props.config.blotWidth - this.props.config.wellOutsideSpacing * 2);
         let currentPosition = 0;
 
-        return <g onClick={() => this.props.select()} style={{ cursor: selected ? "default" : "pointer" }}>
+        return <g onClick={() => this.props.select()} style={{ cursor: selected && ! this.props.rendering ? "default" : "pointer" }}>
             { /* Rectangle for outline and selection */}
             {!this.props.rendering && <rect x={0} y={offset} width={this.props.config.blotWidth} height={row.height}
                 fill={selected ? "none" : "transparent"}
@@ -159,7 +159,7 @@ export class WBWellLabelRowRenderer extends React.Component<IWBWellLabelRowRende
                         y2={offset + row.height}
                         stroke="transparent"
                         strokeWidth={10}
-                        style={{ cursor: 'pointer' }}
+                        style={{ cursor: ! this.props.rendering ? 'pointer' : 'default' }}
                         onClick={() => this.updateWellLabel({ ...label, underline: !label.underline }, labelIndex)} />}
                 </g>;
 
