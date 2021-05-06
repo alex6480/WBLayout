@@ -64,7 +64,7 @@ export class Main extends React.Component<IMainProps, IMainState>
                     type: "well-label",
                     height: 32,
                     labelText: "Label",
-                    labels: Array.from(Array(numberOfWells).keys()).map(index => GetDefaultLabel(index))
+                    labels: Array.from(Array(numberOfWells).keys()).map(index => GetDefaultLabel(index + 1))
                 },
             ],
             showingImageIndex: undefined
@@ -101,8 +101,9 @@ export class Main extends React.Component<IMainProps, IMainState>
                 type: "well-label",
                 height: 32,
                 labelText: "Label",
-                labels: Array.from(Array(this.state.config.numberOfWells).keys()).map(index => GetDefaultLabel(index))
-            }, ...this.state.elements]
+                labels: Array.from(Array(this.state.config.numberOfWells).keys()).map(index => GetDefaultLabel(index + 1))
+            }, ...this.state.elements],
+            selectedElementIndex: this.state.selectedElementIndex !== undefined ? this.state.selectedElementIndex + 1 : undefined
         });
     }
 
@@ -153,7 +154,6 @@ export class Main extends React.Component<IMainProps, IMainState>
                                 };
                             });
 
-                            console.log(images);
                             resolve(images[0]);
                         }
                         else
@@ -194,14 +194,15 @@ export class Main extends React.Component<IMainProps, IMainState>
                     modified = true;
                     labels = [
                         ...labels,
-                        GetDefaultLabel(sumOfWidths)
+                        GetDefaultLabel(sumOfWidths + 1)
                     ];
                     sumOfWidths = labels.map(label => label.width).reduce((a, b) => a + b, 0);
                 }
                 while (sumOfWidths > config.numberOfWells)
                 {
+                    console.log(sumOfWidths, config.numberOfWells);
                     modified = true;
-                    let difference = sumOfWidths - config.numberOfWells;
+                    let difference = Math.max(0, sumOfWidths - config.numberOfWells);
 
                     if (difference < labels[labels.length - 1].width)
                     {
@@ -211,8 +212,8 @@ export class Main extends React.Component<IMainProps, IMainState>
                     {
                         labels = labels.slice(0, labels.length - 1);
                     }
+
                     sumOfWidths = labels.map(label => label.width).reduce((a, b) => a + b, 0);
-                    break;
                 }
 
                 if (modified)
