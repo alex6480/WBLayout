@@ -74,6 +74,21 @@ export class ConfigEditor extends React.Component<IConfigEditorProps, {}>
                 </div>
             </div>
             <div className="field">
+                <label className="label">Angle of angled well labels</label>
+                <div className="field has-addons">
+                    <div className="control">
+                        <input className="input" type="number"
+                            value={this.props.config.wellLabelAngle}
+                            onChange={(e) => this.props.setConfig({ ...this.props.config, wellLabelAngle: e.target.valueAsNumber })} />
+                    </div>
+                    <p className="control">
+                        <a className="button is-static">
+                            °
+                        </a>
+                    </p>
+                </div>
+            </div>
+            <div className="field">
                 <label className="label">Stroke width</label>
                 <div className="field has-addons">
                     <div className="control">

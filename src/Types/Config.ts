@@ -7,5 +7,6 @@ export type Config = {
     elementSpacing: number,
     elementLabelSpacing: number,
     wellLabelSpacing: number,
+    wellLabelAngle: number,
     strokeWidth: number,
 }

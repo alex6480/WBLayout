@@ -35,8 +35,8 @@ export class WBWellLabelEditor extends React.Component<IWBWellLabelEditorProps, 
                             onClick={() => this.props.onChange({ ...label, justification: "left" })}>
                             Left
                         </button>
-                        <button className={"button " + (label.justification == "center" ? "is-primary" : "")}
-                            onClick={() => this.props.onChange({ ...label, justification: "center" })}>
+                        <button className={"button " + (label.justification == "middle" ? "is-primary" : "")}
+                            onClick={() => this.props.onChange({ ...label, justification: "middle" })}>
                             Center
                         </button>
                         <button className={"button " + (label.justification == "right" ? "is-primary" : "")}
@@ -53,19 +53,10 @@ export class WBWellLabelEditor extends React.Component<IWBWellLabelEditorProps, 
                 </label>
             </div>
             <div className="field">
-                <label className="label">Rotation</label>
-                <div className="field has-addons">
-                    <div className="control">
-                        <input className="input" type="number"
-                            value={label.angle}
-                            onChange={e => this.props.onChange({ ...label, angle: e.target.valueAsNumber })} />
-                    </div>
-                    <p className="control">
-                        <a className="button is-static">
-                            °
-                        </a>
-                    </p>
-                </div>
+                <label className="checkbox">
+                    <input type="checkbox" onChange={() => this.props.onChange({ ...label, angled: !label.angled })} checked={label.angled}/>
+                    Angled
+                </label>
             </div>
         </div>;
     }

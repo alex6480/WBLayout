@@ -34,8 +34,8 @@ export var GetDefaultLabel = function (text: string | number): WBWellLabel
         width: 1,
         underline: false,
         text: text.toString(),
-        justification: "center",
-        angle: 0,
+        justification: "middle",
+        angled: false,
     }
 };
 
@@ -55,6 +55,7 @@ export class Main extends React.Component<IMainProps, IMainState>
                 wellLabelSpacing: 10,
                 wellOutsideSpacing: 0,
                 wellSpacing: 10,
+                wellLabelAngle: 45,
             },
             images: {},
             elements: [],

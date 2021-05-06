@@ -326,7 +326,9 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                 { /* Render the label */}
                 {(this.state.rendering || !selected) && <text
                     y={offset - this.props.config.wellLabelSpacing - 5}
-                    x={this.props.config.blotWidth + this.props.config.elementLabelSpacing}>{row.labelText}</text>}
+                    x={this.props.config.blotWidth + this.props.config.elementLabelSpacing}>
+                    {row.labelText}
+                </text>}
 
                 { /* Add helpers to allow merging/splitting of labels */}
                 {!this.state.rendering && selected && Array.from(Array(this.props.config.numberOfWells - 1).keys()).map(position => <rect key={"well-label-split-merge-helper-" + position}
@@ -356,17 +358,26 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                                 top: `calc(${offset - this.props.config.wellLabelSpacing - 5}px - 1.1em)`,
                                 height: "1.4em",
                                 width: labelRowWidth / this.props.config.numberOfWells * label.width - this.props.config.wellSpacing,
-                                textAlign: "center"
+                                textAlign: label.justification == "middle" ? "center" : label.justification
                             }}
                         />);
                     }
 
+                    let labelX = this.props.config.wellOutsideSpacing + labelRowWidth / this.props.config.numberOfWells * currentPosition;
+                    if (label.justification == "left") labelX += this.props.config.wellSpacing * 0.5;
+                    if (label.angled || label.justification == "middle") labelX += 0.5 * labelRowWidth / this.props.config.numberOfWells;
+                    if (label.justification == "right") labelX += 1 * labelRowWidth / this.props.config.numberOfWells - this.props.config.wellSpacing * 1.5;
+
+                    let labelY = offset - this.props.config.wellLabelSpacing - 5;
                     let result = <g key={"well-label-" + labelIndex}>
                         { /* The text */}
                         {!selected && <text key={"well-label-" + labelIndex}
-                            x={this.props.config.wellOutsideSpacing + labelRowWidth / this.props.config.numberOfWells * (currentPosition + label.width * 0.5)}
-                            y={offset - this.props.config.wellLabelSpacing - 5}
-                            textAnchor={this.state.rendering ? "left" : "middle"}>{label.text}</text>}
+                            x={labelX}
+                            y={labelY}
+                            textAnchor={label.angled ? "left" : label.justification}
+                            transform={label.angled ? `rotate(-${this.props.config.wellLabelAngle}, ${labelX}, ${labelY})` : ""}>
+                            {label.text}
+                        </text>}
                         
                         { /* The underline */ }
                         {(!this.state.rendering || label.underline) && <line key={"well-label-underline" + labelIndex}
