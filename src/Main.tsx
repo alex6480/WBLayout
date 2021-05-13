@@ -147,6 +147,8 @@ export class Main extends React.Component<IMainProps, IMainState>
                                 return {
                                     data: canvas.toDataURL(),
                                     name: inputElement.files[0].name,
+                                    browserOffset: {x: 0, y: 0},
+                                    zoom: 100,
                                     size: {
                                         width: ifd.width,
                                         height: ifd.height
@@ -162,6 +164,8 @@ export class Main extends React.Component<IMainProps, IMainState>
                                 resolve({
                                     data: dataUrl,
                                     name: inputElement.files[0].name,
+                                    browserOffset: {x: 0, y: 0},
+                                    zoom: 100,
                                     size: {
                                         width: image.width,
                                         height: image.height
@@ -232,8 +236,10 @@ export class Main extends React.Component<IMainProps, IMainState>
         {
             return {
                 data: "",
-                name: "Missing image",
-                size: { width: 1000, height: 1000 }
+                name: "missing",
+                size: { width: 1000, height: 1000 },
+                browserOffset: {x: 0, y: 0},
+                zoom: 100
             };
         }
         else
@@ -278,11 +284,12 @@ export class Main extends React.Component<IMainProps, IMainState>
                                     setConfig={newConf => this.setState({ config: newConf })}
                                 />
                             </div>
-                            {selectedElement !== undefined && selectedElement.type == "blot" && <div style={{flex: "1", overflow: "scroll"}}>
+                            {selectedElement !== undefined && selectedElement.type == "blot" && <div style={{flex: "1", position: "relative", height: "50%" }}>
                                 <WBImagePreview
                                     element={selectedElement}
                                     image={this.GetImage(selectedElement.imageIndex)}
                                     config={this.state.config}
+                                    updateImage={image => selectedElement.type == "blot" && this.setImages({ ...this.state.images, [selectedElement.imageIndex]: image })}
                                     updateElement={element => this.updateElement(element, this.state.selectedElementIndex)}
                                 />
                             </div> }
