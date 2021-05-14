@@ -117,7 +117,8 @@ export class WBWellLabelRowRenderer extends React.Component<IWBWellLabelRowRende
                 x={this.props.config.blotWidth + this.props.config.elementLabelSpacing}
                 fontWeight={rowLabelTextProperties.bold ? "bold" : "normal"}
                 fontStyle={rowLabelTextProperties.italic ? "italic" : "normal"}
-                fontSize={rowLabelTextProperties.size}>
+                fontSize={rowLabelTextProperties.size}
+                fontFamily={rowLabelTextProperties.fontFamily}>
                 {row.labelText}
             </text>}
 
@@ -146,9 +147,10 @@ export class WBWellLabelRowRenderer extends React.Component<IWBWellLabelRowRende
                         x={labelX}
                         y={labelY}
                         textAnchor={label.angled ? "left" : labelTextProperties.justification}
-                        fontWeight={rowLabelTextProperties.bold ? "bold" : "normal"}
-                        fontStyle={rowLabelTextProperties.italic ? "italic" : "normal"}
-                        fontSize={rowLabelTextProperties.size}
+                        fontWeight={labelTextProperties.bold ? "bold" : "normal"}
+                        fontStyle={labelTextProperties.italic ? "italic" : "normal"}
+                        fontSize={labelTextProperties.size}
+                        fontFamily={labelTextProperties.fontFamily}
                         transform={label.angled ? `rotate(-${this.props.config.wellLabelAngle}, ${labelX}, ${labelY})` : ""}>
                         {label.text}
                     </text>}

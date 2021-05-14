@@ -161,6 +161,7 @@ export class WBElementRenderer extends React.Component<IWBElementRendererProps, 
                 fontWeight={rowLabelTextProperties.bold ? "bold" : "normal"}
                 fontStyle={rowLabelTextProperties.italic ? "italic" : "normal"}
                 fontSize={rowLabelTextProperties.size}
+                fontFamily={rowLabelTextProperties.fontFamily}
                 onClick={() => this.props.select()}
                 dominantBaseline="central">{element.label}</text>}
             

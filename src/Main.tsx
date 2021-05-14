@@ -41,7 +41,8 @@ export var GetDefaultLabel = function (text: string | number): WBWellLabel
             bold: "default",
             italic: "default",
             justification: "default",
-            size: "default"
+            size: "default",
+            fontFamily: "default",
         },
         angled: false,
     }
@@ -65,12 +66,7 @@ export class Main extends React.Component<IMainProps, IMainState>
                 wellSpacing: 10,
                 wellLabelAngle: 45,
 
-                defaultTextProperties: {
-                    bold: defaultTextProperties.bold,
-                    italic: defaultTextProperties.italic,
-                    justification: defaultTextProperties.justification,
-                    size: defaultTextProperties.size,
-                }
+                defaultTextProperties: { ...defaultTextProperties }
             },
             images: {},
             elements: [
@@ -83,7 +79,8 @@ export class Main extends React.Component<IMainProps, IMainState>
                         bold: "default",
                         italic: "default",
                         justification: "start",
-                        size: "default"
+                        size: "default",
+                        fontFamily: "default",
                     }
                 },
             ],
@@ -110,7 +107,8 @@ export class Main extends React.Component<IMainProps, IMainState>
                         bold: "default",
                         italic: "default",
                         justification: "default",
-                        size: "default"
+                        size: "default",
+                        fontFamily: "default",
                     },
                     imageProperties: {
                         brightness: 100,
@@ -132,7 +130,8 @@ export class Main extends React.Component<IMainProps, IMainState>
                     bold: "default",
                     italic: "default",
                     justification: "start",
-                    size: "default"
+                    size: "default",
+                    fontFamily: "default",
                 }
             }, ...this.state.elements],
             selectedElementIndex: this.state.selectedElementIndex !== undefined ? this.state.selectedElementIndex + 1 : undefined

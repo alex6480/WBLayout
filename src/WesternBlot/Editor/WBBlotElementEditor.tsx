@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { App } from '../../App';
+import { TextPropertiesEditor } from '../../Components/TextPropertiesEditor';
 import { Config } from '../../Types/Config';
 import { IImageObject } from '../../Types/IImageObject';
 import { WBBlotElement } from '../../Types/WBBlotElement';
@@ -43,6 +44,7 @@ export class WBBlotElementEditor extends React.Component<IWBBlotElementEditorPro
                             onChange={(e) => this.props.onChange({...element, label: e.target.value})} />
                     </div>
                 </div>
+                <TextPropertiesEditor properties={element.labelTextProperties} onChange={props => this.props.onChange({ ...element, labelTextProperties: props })} allowDefault={true} />
             </div>
 
             <h3 className="title is-4">Image</h3>

@@ -135,7 +135,6 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
         let offset = 20;
 
         let editorLayer: JSX.Element[] = [];
-        let textProperties = this.props.config.defaultTextProperties;
 
         // Render the elements
         let selectedElementPosition: number | undefined = undefined;
@@ -164,6 +163,7 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                             fontSize: rowLabelTextProperties.size,
                             fontStyle: rowLabelTextProperties.italic ? "italic" : "normal",
                             fontWeight: rowLabelTextProperties.bold ? "bold" : "normal",
+                            fontFamily: rowLabelTextProperties.fontFamily,
                             width: this.props.config.blotWidth,
                         }}
                     />);
@@ -199,6 +199,7 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                                 fontSize: labelTextProperties.size,
                                 fontStyle: labelTextProperties.italic ? "italic" : "normal",
                                 fontWeight: labelTextProperties.bold ? "bold" : "normal",
+                                fontFamily: labelTextProperties.fontFamily,
                             }}
                         />);
                         currentPosition += label.width;
@@ -253,6 +254,7 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                             fontSize: labelTextProperties.size,
                             fontStyle: labelTextProperties.italic ? "italic" : "normal",
                             fontWeight: labelTextProperties.bold ? "bold" : "normal",
+                            fontFamily: labelTextProperties.fontFamily,
                             position: "absolute",
                             left: `${this.props.config.blotWidth + this.props.config.elementLabelSpacing + 100}px`,
                             top: `calc(${offset + element.height * 0.5}px - 1em)`,
