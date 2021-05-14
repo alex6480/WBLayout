@@ -99,9 +99,10 @@ export class WBWellLabelRowRenderer extends React.Component<IWBWellLabelRowRende
         let rowLabelTextProperties = getTextProperties(this.props.labelRow.labelTextProperties, this.props.config.defaultTextProperties);
         let currentPosition = 0;
 
-        return <g onClick={() => selection === undefined && this.props.select([])} style={{ cursor: this.props.selection !== undefined && ! this.props.rendering ? "default" : "pointer" }}>
+        return <g style={{ cursor: this.props.selection !== undefined && ! this.props.rendering ? "default" : "pointer" }}>
             { /* Rectangle for outline and selection */}
             {!this.props.rendering && <rect x={0} y={offset} width={this.props.config.blotWidth} height={row.height}
+                onClick={() => this.props.select([])}
                 fill={this.props.selection !== undefined ? "none" : "transparent"}
                 stroke="red"
                 strokeWidth={this.props.selection !== undefined ? 2 : 0}
