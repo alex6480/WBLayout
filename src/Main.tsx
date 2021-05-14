@@ -26,7 +26,7 @@ interface IMainState
     images: { [id: number]: IImageObject };
     elements: WBElement[];
     showingImageIndex?: number;
-    selectedElementIndex?: number;
+    selectedElementIndex: number[];
 }
 
 export type WBElement = WBBlotElement | WBWellLabelElement;
@@ -84,6 +84,7 @@ export class Main extends React.Component<IMainProps, IMainState>
                     }
                 },
             ],
+            selectedElementIndex: [],
             showingImageIndex: undefined
         };
     }
@@ -134,7 +135,7 @@ export class Main extends React.Component<IMainProps, IMainState>
                     fontFamily: "default",
                 }
             }, ...this.state.elements],
-            selectedElementIndex: this.state.selectedElementIndex !== undefined ? this.state.selectedElementIndex + 1 : undefined
+            selectedElementIndex: this.state.selectedElementIndex.length > 0 ? [this.state.selectedElementIndex[0] + 1, ...this.state.selectedElementIndex.slice(1)] : []
         });
     }
 
@@ -292,7 +293,7 @@ export class Main extends React.Component<IMainProps, IMainState>
 
     public render(): JSX.Element
     {
-        let selectedElement = this.state.selectedElementIndex !== undefined ? this.state.elements[this.state.selectedElementIndex] : undefined;
+        let selectedElement = this.state.selectedElementIndex.length != 0 ? this.state.elements[this.state.selectedElementIndex[0]] : undefined;
         return (
             <div className="columns">
                 <div className="column is-two-thirds">
@@ -321,7 +322,7 @@ export class Main extends React.Component<IMainProps, IMainState>
                                     image={this.GetImage(selectedElement.imageIndex)}
                                     config={this.state.config}
                                     updateImage={image => selectedElement.type == "blot" && this.setImages({ ...this.state.images, [selectedElement.imageIndex]: image })}
-                                    updateElement={element => this.updateElement(element, this.state.selectedElementIndex)}
+                                    updateElement={element => this.updateElement(element, this.state.selectedElementIndex[0])}
                                 />
                             </div> }
                         </div>}
@@ -330,10 +331,11 @@ export class Main extends React.Component<IMainProps, IMainState>
                     <TabSet tabs={[
                         {
                             name: "Current selection",
-                            content: this.state.selectedElementIndex !== undefined
+                            content: this.state.selectedElementIndex.length > 0
                                 ? < WBElementEditor
                                     element={selectedElement}
                                     images={this.state.images}
+                                    selection={this.state.selectedElementIndex.slice(1)}
                                     setImages={images => this.setImages(images)}
                                     uploadNewImage={() => this.uploadNewImage()}
                                     elementIndex={this.state.selectedElementIndex}

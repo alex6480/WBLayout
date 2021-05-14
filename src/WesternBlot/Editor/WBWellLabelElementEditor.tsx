@@ -10,6 +10,7 @@ import { WBWellLabelEditor } from './WBWellLabelEditor';
 export interface IWBWellLabelelementEditorProps
 {
     element: WBWellLabelElement;
+    selection: number[];
     onChange: (labelRow: WBWellLabelElement) => void;
 }
 
@@ -18,6 +19,7 @@ export class WBWellLabelElementEditor extends React.Component<IWBWellLabelelemen
     public render(): JSX.Element
     {
         let row = this.props.element;
+        let anySelected = this.props.selection.length > 0;
         return <div>
             <h3 className="title is-4">General</h3>
             <div className="field">
@@ -36,9 +38,9 @@ export class WBWellLabelElementEditor extends React.Component<IWBWellLabelelemen
                 </div>
             </div>
 
-            {this.props.element.selectedLabel !== undefined && <>
+            {anySelected && <>
                 <h3 className="title is-4">Selected label</h3>
-                {this.props.element.selectedLabel === "rowlabel"
+                {this.props.selection[0] == 0
                     ? <>
                         <div className="field">
                             <label className="label">Text</label>
@@ -55,11 +57,11 @@ export class WBWellLabelElementEditor extends React.Component<IWBWellLabelelemen
                             properties={this.props.element.labelTextProperties}
                             onChange={props => this.props.onChange({ ...this.props.element, labelTextProperties: props })} />
                     </>
-                    : <WBWellLabelEditor key={this.props.element.selectedLabel} label={this.props.element.labels[this.props.element.selectedLabel]} onChange={label => this.props.onChange({
+                    : <WBWellLabelEditor key={this.props.selection[0]} label={this.props.element.labels[this.props.selection[0] - 1]} onChange={label => this.props.onChange({
                         ...row, labels: [
-                            ...row.labels.slice(0, this.props.element.selectedLabel as number),
+                            ...row.labels.slice(0, this.props.selection[0] - 1 as number),
                             label,
-                            ...row.labels.slice(this.props.element.selectedLabel as number + 1)
+                            ...row.labels.slice(this.props.selection[0] - 1 as number + 1)
                         ]
                     })} />}
             </>}

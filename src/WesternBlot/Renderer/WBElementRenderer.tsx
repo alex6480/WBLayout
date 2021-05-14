@@ -13,13 +13,13 @@ export interface IWBElementRendererProps
 
     offset: number;
     index: number;
-    selected: boolean;
+    selection?: number[];
 
     embedImages: boolean;
     element: WBBlotElement;
     rendering: boolean;
     image: IImageObject;
-    select: () => void;
+    select: (selection: number[]) => void;
     onChange: (element: WBBlotElement) => void;
 }
 
@@ -122,7 +122,7 @@ export class WBElementRenderer extends React.Component<IWBElementRendererProps, 
 
         let element = this.props.element;
         let offset = this.props.offset;
-        let selected = this.props.selected;
+        let selection = this.props.selection;
         let imageScale = this.props.config.blotWidth / element.boundingBox.width;
         let rowLabelTextProperties = getTextProperties(element.labelTextProperties, this.props.config.defaultTextProperties);
         return <g>
@@ -145,24 +145,25 @@ export class WBElementRenderer extends React.Component<IWBElementRendererProps, 
 
             { /* Render the outline */}
             <rect x={strokeWidth * 0.5} y={offset + strokeWidth * 0.5} height={element.height - strokeWidth} width={this.props.config.blotWidth - strokeWidth}
-                stroke={selected && !this.props.rendering ? "red" : "black"}
+                stroke={selection !== undefined && selection[0] == 0 && !this.props.rendering ? "red" : "black"}
                 strokeWidth={this.props.config.strokeWidth}
                 fill="none"></rect>
             {!this.props.rendering && <rect x={0} y={offset} height={element.height} width={this.props.config.blotWidth}
                 fill="transparent"
-                onClick={() => this.props.select()}
-                onMouseDown={e => selected && this.beginMouseMove(e, "pan")}
-                style={{ cursor: selected ? (this.state.mouseMoveAction !== undefined ? 'grabbing' : 'grab') : 'pointer' }}></rect>}
+                onClick={() => this.props.select([0])}
+                onMouseDown={e => selection !== undefined && selection[0] == 0 && this.beginMouseMove(e, "pan")}
+                style={{ cursor: selection !== undefined && selection[0] == 0 ? (this.state.mouseMoveAction !== undefined ? 'grabbing' : 'grab') : 'pointer' }}></rect>}
             
             { /* Render the label */}
-            {(this.props.rendering || !selected) && <text
+            {(this.props.rendering || selection === undefined || selection[0] != 1) && <text
                 y={offset + element.height * 0.5}
                 x={this.props.config.blotWidth + this.props.config.elementLabelSpacing}
                 fontWeight={rowLabelTextProperties.bold ? "bold" : "normal"}
                 fontStyle={rowLabelTextProperties.italic ? "italic" : "normal"}
                 fontSize={rowLabelTextProperties.size}
                 fontFamily={rowLabelTextProperties.fontFamily}
-                onClick={() => this.props.select()}
+                onClick={() => this.props.select([1])}
+                cursor={this.props.rendering ? "default" : "pointer"}
                 dominantBaseline="central">{element.label}</text>}
             
             { /* Render editor utilities */}

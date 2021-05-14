@@ -11,7 +11,8 @@ import { WBWellLabelElementEditor as WBWellLabelElementEditor } from './WBWellLa
 export interface IWBElementEditorProps
 {
     element: WBElement;
-    elementIndex: number;
+    elementIndex: number[];
+    selection: number[];
     images: { [id: number]: IImageObject };
     updateElement: (element: WBElement, index: number) => void;
     setImages: (images: {[id: number]: IImageObject }) => void;
@@ -28,7 +29,8 @@ export class WBElementEditor extends React.Component<IWBElementEditorProps, {}>
             return <WBBlotElementEditor
                 element={element}
                 images={this.props.images}
-                onChange={element => this.props.updateElement(element, this.props.elementIndex)}
+                selection={this.props.selection}
+                onChange={element => this.props.updateElement(element, this.props.elementIndex[0])}
                 setImages={this.props.setImages}
                 uploadNewImage={this.props.uploadNewImage}
             />;
@@ -37,7 +39,8 @@ export class WBElementEditor extends React.Component<IWBElementEditorProps, {}>
         {
             return <WBWellLabelElementEditor
                 element={element}
-                onChange={element => this.props.updateElement(element, this.props.elementIndex)}
+                selection={this.props.selection}
+                onChange={element => this.props.updateElement(element, this.props.elementIndex[0])}
             />;
         }
     }

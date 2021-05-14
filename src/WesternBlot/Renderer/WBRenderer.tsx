@@ -14,8 +14,8 @@ export interface IWBRendererProps
     setConfig: (config: Config) => void;
 
     elements: WBElement[];
-    selectedElementIndex: number;
-    selectElement: (id: number) => void;
+    selectedElementIndex: number[];
+    selectElement: (id: number[]) => void;
     updateElement: (element: WBElement, index: number) => void;
     addNewBlotElement: () => void;
     addNewWellLabelElement: () => void;
@@ -139,7 +139,7 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
         // Render the elements
         let selectedElementPosition: number | undefined = undefined;
         let elements = this.props.elements.map((element, elementIndex) => {
-            let selected = this.props.selectedElementIndex === elementIndex;
+            let selected = this.props.selectedElementIndex.length > 0 && this.props.selectedElementIndex[0] === elementIndex;
 
             if (element.type === "well-label")
             {
@@ -148,62 +148,64 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                     selectedElementPosition = offset + element.height * 0.5;
 
                     // Add editable text field for the row label
-                    let rowLabelTextProperties = getTextProperties(element.labelTextProperties, this.props.config.defaultTextProperties);
-                    editorLayer.push(<input type="text"
-                        key={"well-label-editor-" + elementIndex}
-                        value={element.labelText}
-                        onChange={ev => this.props.updateElement({ ...element, labelText: ev.target.value }, elementIndex)}
-                        onFocus={() => this.props.updateElement({ ...element, selectedLabel: "rowlabel" }, elementIndex)}
-                        className="borderless-input"
-                        style={{
-                            color: "red",
-                            position: "absolute",
-                            left: `${this.props.config.blotWidth + this.props.config.elementLabelSpacing + 100}px`,
-                            top: `calc(${offset - 10 + element.height}px - 1.1em)`,
-                            height: "1.4em",
-                            fontSize: rowLabelTextProperties.size,
-                            fontStyle: rowLabelTextProperties.italic ? "italic" : "normal",
-                            fontWeight: rowLabelTextProperties.bold ? "bold" : "normal",
-                            fontFamily: rowLabelTextProperties.fontFamily,
-                            width: this.props.config.blotWidth,
-                        }}
-                    />);
+                    if (this.props.selectedElementIndex[1] == 0) {
+                        let rowLabelTextProperties = getTextProperties(element.labelTextProperties, this.props.config.defaultTextProperties);
+                        editorLayer.push(<input type="text"
+                            key={"well-label-editor-" + elementIndex}
+                            value={element.labelText}
+                            onChange={ev => this.props.updateElement({ ...element, labelText: ev.target.value }, elementIndex)}
+                            className="borderless-input"
+                            style={{
+                                color: "red",
+                                position: "absolute",
+                                left: `${this.props.config.blotWidth + this.props.config.elementLabelSpacing + 100}px`,
+                                top: `calc(${offset - 10 + element.height}px - 1.1em)`,
+                                height: "1.4em",
+                                fontSize: rowLabelTextProperties.size,
+                                fontStyle: rowLabelTextProperties.italic ? "italic" : "normal",
+                                fontWeight: rowLabelTextProperties.bold ? "bold" : "normal",
+                                fontFamily: rowLabelTextProperties.fontFamily,
+                                width: this.props.config.blotWidth,
+                            }}
+                        />);
+                    }
                     
                     // Add editable text fields for the well labels
                     let currentPosition = 0;
                     let labelRowWidth = (this.props.config.blotWidth - this.props.config.wellOutsideSpacing * 2);
                     element.labels.map((label, labelIndex) => {
                         let labelTextProperties = getTextProperties(label.textProperties, this.props.config.defaultTextProperties);
-                        editorLayer.push(<input type="text"
-                            key={"well-label-editor-" + elementIndex + "-" + labelIndex}
-                            value={label.text}
-                            onFocus={() => this.props.updateElement({ ...element, selectedLabel: labelIndex }, elementIndex)}
-                            onChange={ev => this.props.updateElement({
-                                ...element,
-                                labels: [
-                                    ...element.labels.slice(0, labelIndex),
-                                    {
-                                        ...element.labels[labelIndex],
-                                        text: ev.target.value
-                                    },
-                                    ...element.labels.slice(labelIndex + 1)
-                                ]
-                            }, elementIndex)}
-                            className="borderless-input"
-                            style={{
-                                color: "red",
-                                position: "absolute",
-                                left: `${this.props.config.wellOutsideSpacing + labelRowWidth / this.props.config.numberOfWells * currentPosition + this.props.config.wellSpacing * 0.5 + 100}px`,
-                                top: `calc(${offset - 10 + element.height}px - 1.1em)`,
-                                height: "1.4em",
-                                width: labelRowWidth / this.props.config.numberOfWells * label.width - this.props.config.wellSpacing,
-                                textAlign: labelTextProperties.justification == "middle" ? "center" : labelTextProperties.justification,
-                                fontSize: labelTextProperties.size,
-                                fontStyle: labelTextProperties.italic ? "italic" : "normal",
-                                fontWeight: labelTextProperties.bold ? "bold" : "normal",
-                                fontFamily: labelTextProperties.fontFamily,
-                            }}
-                        />);
+                        if (this.props.selectedElementIndex[1] == currentPosition + 1) {
+                            editorLayer.push(<input type="text"
+                                key={"well-label-editor-" + elementIndex + "-" + labelIndex}
+                                value={label.text}
+                                onChange={ev => this.props.updateElement({
+                                    ...element,
+                                    labels: [
+                                        ...element.labels.slice(0, labelIndex),
+                                        {
+                                            ...element.labels[labelIndex],
+                                            text: ev.target.value
+                                        },
+                                        ...element.labels.slice(labelIndex + 1)
+                                    ]
+                                }, elementIndex)}
+                                className="borderless-input"
+                                style={{
+                                    color: "red",
+                                    position: "absolute",
+                                    left: `${this.props.config.wellOutsideSpacing + labelRowWidth / this.props.config.numberOfWells * currentPosition + this.props.config.wellSpacing * 0.5 + 100}px`,
+                                    top: `calc(${offset - 10 + element.height}px - 1.1em)`,
+                                    height: "1.4em",
+                                    width: labelRowWidth / this.props.config.numberOfWells * label.width - this.props.config.wellSpacing,
+                                    textAlign: labelTextProperties.justification == "middle" ? "center" : labelTextProperties.justification,
+                                    fontSize: labelTextProperties.size,
+                                    fontStyle: labelTextProperties.italic ? "italic" : "normal",
+                                    fontWeight: labelTextProperties.bold ? "bold" : "normal",
+                                    fontFamily: labelTextProperties.fontFamily,
+                                }}
+                            />);
+                        }
                         currentPosition += label.width;
                     })
                 }
@@ -215,8 +217,8 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                     offset={offset}
                     onChange={row => this.props.updateElement(row, elementIndex)}
                     rendering={this.state.rendering}
-                    select={() => this.props.selectElement(elementIndex)}
-                    selected={selected}
+                    select={selection => this.props.selectElement([elementIndex, ...selection])}
+                    selection={selected ? this.props.selectedElementIndex.slice(1) : undefined}
                 />
 
                 offset += element.height + this.props.config.wellLabelSpacing;
@@ -235,8 +237,8 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                     offset={offset}
                     onChange={element => this.props.updateElement(element, elementIndex)}
                     rendering={this.state.rendering}
-                    select={() => this.props.selectElement(elementIndex)}
-                    selected={selected}
+                    select={selection => this.props.selectElement([elementIndex, ...selection])}
+                    selection={selected ? this.props.selectedElementIndex.slice(1) : undefined}
                     setConfig={this.props.setConfig}
                 />;
 
@@ -244,26 +246,28 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                 {
                     selectedElementPosition = offset + element.height * 0.5;
 
-                    // Add editable text field
-                    let labelTextProperties = getTextProperties(element.labelTextProperties, this.props.config.defaultTextProperties);
-                    editorLayer.push(<input type="text"
-                        key={"label-editor-" + elementIndex}
-                        value={element.label}
-                        onChange={ev => this.props.updateElement({ ...element, label: ev.target.value }, elementIndex)}
-                        className="borderless-input"
-                        style={{
-                            color: "red",
-                            fontSize: labelTextProperties.size,
-                            fontStyle: labelTextProperties.italic ? "italic" : "normal",
-                            fontWeight: labelTextProperties.bold ? "bold" : "normal",
-                            fontFamily: labelTextProperties.fontFamily,
-                            position: "absolute",
-                            left: `${this.props.config.blotWidth + this.props.config.elementLabelSpacing + 100}px`,
-                            top: `calc(${offset + element.height * 0.5}px - 1em)`,
-                            height: "2em",
-                            width: this.props.config.blotWidth - this.props.config.elementLabelSpacing
-                        }}
-                    />);
+                    if (this.props.selectedElementIndex.length > 1 && this.props.selectedElementIndex[1] == 1) {
+                        // Add editable text field
+                        let labelTextProperties = getTextProperties(element.labelTextProperties, this.props.config.defaultTextProperties);
+                        editorLayer.push(<input type="text"
+                            key={"label-editor-" + elementIndex}
+                            value={element.label}
+                            onChange={ev => this.props.updateElement({ ...element, label: ev.target.value }, elementIndex)}
+                            className="borderless-input"
+                            style={{
+                                color: "red",
+                                fontSize: labelTextProperties.size,
+                                fontStyle: labelTextProperties.italic ? "italic" : "normal",
+                                fontWeight: labelTextProperties.bold ? "bold" : "normal",
+                                fontFamily: labelTextProperties.fontFamily,
+                                position: "absolute",
+                                left: `${this.props.config.blotWidth + this.props.config.elementLabelSpacing + 100}px`,
+                                top: `calc(${offset + element.height * 0.5}px - 1em)`,
+                                height: "2em",
+                                width: this.props.config.blotWidth - this.props.config.elementLabelSpacing
+                            }}
+                        />);
+                    }
                 }
 
                 offset += element.height + this.props.config.elementSpacing;
@@ -292,44 +296,44 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                         style={{ position: "absolute", left: "25px", transform: "translate(-50%, -50%)", top: selectedElementPosition + "px" }}
                         onClick={() => {
                             this.props.setElements([
-                                ...this.props.elements.slice(0, this.props.selectedElementIndex),
-                                ...this.props.elements.slice(this.props.selectedElementIndex + 1)
+                                ...this.props.elements.slice(0, this.props.selectedElementIndex[0]),
+                                ...this.props.elements.slice(this.props.selectedElementIndex[0] + 1)
                             ]);
-                            this.props.selectElement(undefined);
+                            this.props.selectElement([]);
                         }}
                     ><FaTrashAlt /></button>
-                    {this.props.selectedElementIndex != 0 && <button className="button is-small"
+                    {this.props.selectedElementIndex[0] != 0 && <button className="button is-small"
                         style={{
                             position: "absolute",
                             left: "75px",
                             transform: "translate(-50%, -50%)",
-                            top: selectedElementPosition - (this.props.selectedElementIndex != this.props.elements.length - 1 ? 20 : 0) + "px"
+                            top: selectedElementPosition - (this.props.selectedElementIndex[0] != this.props.elements.length - 1 ? 20 : 0) + "px"
                         }}
                         onClick={() => {
                             this.props.setElements([
-                                ...this.props.elements.slice(0, this.props.selectedElementIndex - 1),
-                                this.props.elements[this.props.selectedElementIndex],
-                                this.props.elements[this.props.selectedElementIndex - 1],
-                                ...this.props.elements.slice(this.props.selectedElementIndex + 1),
+                                ...this.props.elements.slice(0, this.props.selectedElementIndex[0] - 1),
+                                this.props.elements[this.props.selectedElementIndex[0]],
+                                this.props.elements[this.props.selectedElementIndex[0] - 1],
+                                ...this.props.elements.slice(this.props.selectedElementIndex[0] + 1),
                             ]);
-                            this.props.selectElement(this.props.selectedElementIndex - 1);
+                            this.props.selectElement([this.props.selectedElementIndex[0] - 1, ...this.props.selectedElementIndex.slice(1)]);
                         }}
                     ><FaArrowUp /></button>}
-                    {this.props.selectedElementIndex != this.props.elements.length - 1 && <button className="button is-small"
+                    {this.props.selectedElementIndex[0] != this.props.elements.length - 1 && <button className="button is-small"
                         style={{
                             position: "absolute",
                             left: "75px",
                             transform: "translate(-50%, -50%)",
-                            top: selectedElementPosition + (this.props.selectedElementIndex != 0 ? 20 : 0) + "px"
+                            top: selectedElementPosition + (this.props.selectedElementIndex[0] != 0 ? 20 : 0) + "px"
                         }}
                         onClick={() => {
                             this.props.setElements([
-                                ...this.props.elements.slice(0, this.props.selectedElementIndex),
-                                this.props.elements[this.props.selectedElementIndex + 1],
-                                this.props.elements[this.props.selectedElementIndex],
-                                ...this.props.elements.slice(this.props.selectedElementIndex + 2),
+                                ...this.props.elements.slice(0, this.props.selectedElementIndex[0]),
+                                this.props.elements[this.props.selectedElementIndex[0] + 1],
+                                this.props.elements[this.props.selectedElementIndex[0]],
+                                ...this.props.elements.slice(this.props.selectedElementIndex[0] + 2),
                             ]);
-                            this.props.selectElement(this.props.selectedElementIndex + 1);
+                            this.props.selectElement([this.props.selectedElementIndex[0] + 1, ...this.props.selectedElementIndex.slice(1)]);
                         }}
                     ><FaArrowDown /></button>}
                 </>}
