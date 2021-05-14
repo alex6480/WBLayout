@@ -29,6 +29,6 @@ export function getTextProperties(properties: TextProperties, defaultProperties:
         justification: properties.justification === "default" ? defaultProperties.justification : properties.justification,
         bold: properties.bold === "default" ? defaultProperties.bold : properties.bold,
         italic: properties.italic === "default" ? defaultProperties.italic : properties.italic,
-        fontFamily: properties.fontFamily === "default" ? defaultTextProperties.fontFamily : properties.fontFamily,
+        fontFamily: properties.fontFamily === "default" ? defaultProperties.fontFamily : properties.fontFamily,
     }
 }

@@ -138,6 +138,25 @@ export class TextPropertiesEditor extends React.Component<ITextPropertiesEditorP
                         </div>
                     </div>}
                 </div>
+
+                <div className="field">
+                    <label className="label">Font family</label>
+                    { this.props.allowDefault && <div className="field">
+                        <label className="checkbox">
+                            <input type="checkbox"
+                                onChange={() => this.onChange({ ...props, fontFamily: props.fontFamily === "default" ? defaultTextProperties.fontFamily : "default" })}
+                                checked={props.fontFamily === "default"} />
+                            Use default
+                        </label>
+                    </div> }
+                    {(props.fontFamily !== "default" || ! this.props.allowDefault) && <div className="field">
+                        <div className="control">
+                            <input className="input" type="text"
+                                value={props.fontFamily}
+                                onChange={(e) => this.onChange({ ...props, fontFamily: e.target.value })} />
+                        </div>
+                    </div>}
+                </div>
             </div>
         </>;
     }
