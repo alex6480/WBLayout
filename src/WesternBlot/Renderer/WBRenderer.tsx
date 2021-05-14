@@ -153,6 +153,7 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                         key={"well-label-editor-" + elementIndex}
                         value={element.labelText}
                         onChange={ev => this.props.updateElement({ ...element, labelText: ev.target.value }, elementIndex)}
+                        onFocus={() => this.props.updateElement({ ...element, selectedLabel: "rowlabel" }, elementIndex)}
                         className="borderless-input"
                         style={{
                             color: "red",
@@ -176,6 +177,7 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                         editorLayer.push(<input type="text"
                             key={"well-label-editor-" + elementIndex + "-" + labelIndex}
                             value={label.text}
+                            onFocus={() => this.props.updateElement({ ...element, selectedLabel: labelIndex }, elementIndex)}
                             onChange={ev => this.props.updateElement({
                                 ...element,
                                 labels: [

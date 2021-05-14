@@ -6,6 +6,7 @@ export type WBWellLabelElement = {
     labelText: string;
     labelTextProperties: TextProperties;
     labels: WBWellLabel[];
+    selectedLabel?: number | "rowlabel";
 }
 
 export type WBWellLabel = {

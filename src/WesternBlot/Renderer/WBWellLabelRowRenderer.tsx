@@ -1,9 +1,6 @@
 import * as React from 'react';
-import { App } from '../../App';
 import { Config } from '../../Types/Config';
-import { IImageObject } from '../../Types/IImageObject';
 import { getTextProperties } from '../../Types/TextProperties';
-import { WBBlotElement } from '../../Types/WBBlotElement';
 import { WBWellLabel, WBWellLabelElement } from '../../Types/WBWellLabel';
 
 export interface IWBWellLabelRowRendererProps
