@@ -1,6 +1,7 @@
 import * as React from 'react';
-import { App } from './App';
-import { Config } from './Types/Config';
+import { App } from '../App';
+import { Config } from '../Types/Config';
+import { TextPropertiesEditor } from './TextPropertiesEditor';
 
 export interface IConfigEditorProps
 {
@@ -148,6 +149,9 @@ export class ConfigEditor extends React.Component<IConfigEditorProps, {}>
                     </p>
                 </div>
             </div>
+            <TextPropertiesEditor properties={this.props.config.defaultTextProperties} allowDefault={false} onChange={
+                properties => this.props.setConfig({ ...this.props.config, defaultTextProperties: properties })
+            } />
         </>;
     }
 }

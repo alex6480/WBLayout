@@ -1,3 +1,5 @@
+import { DefaultTextProperties } from "./TextProperties";
+
 export type Config = {
     numberOfWells: number,
     wellSpacing: number,
@@ -9,4 +11,6 @@ export type Config = {
     wellLabelSpacing: number,
     wellLabelAngle: number,
     strokeWidth: number,
+
+    defaultTextProperties: DefaultTextProperties,
 }

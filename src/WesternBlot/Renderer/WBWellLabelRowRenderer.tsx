@@ -2,7 +2,9 @@ import * as React from 'react';
 import { App } from '../../App';
 import { Config } from '../../Types/Config';
 import { IImageObject } from '../../Types/IImageObject';
+import { getTextProperties } from '../../Types/TextProperties';
 import { WBBlotElement } from '../../Types/WBBlotElement';
+import { WBWellLabel, WBWellLabelElement } from '../../Types/WBWellLabel';
 
 export interface IWBWellLabelRowRendererProps
 {
@@ -97,6 +99,7 @@ export class WBWellLabelRowRenderer extends React.Component<IWBWellLabelRowRende
         let selected = this.props.selected;
         let row = this.props.labelRow;
         let labelRowWidth = (this.props.config.blotWidth - this.props.config.wellOutsideSpacing * 2);
+        let rowLabelTextProperties = getTextProperties(this.props.labelRow.labelTextProperties, this.props.config.defaultTextProperties);
         let currentPosition = 0;
 
         return <g onClick={() => this.props.select()} style={{ cursor: selected && ! this.props.rendering ? "default" : "pointer" }}>
@@ -111,7 +114,10 @@ export class WBWellLabelRowRenderer extends React.Component<IWBWellLabelRowRende
             { /* Render the label */}
             {(this.props.rendering || !selected) && <text
                 y={offset + row.height - 10}
-                x={this.props.config.blotWidth + this.props.config.elementLabelSpacing}>
+                x={this.props.config.blotWidth + this.props.config.elementLabelSpacing}
+                fontWeight={rowLabelTextProperties.bold ? "bold" : "normal"}
+                fontStyle={rowLabelTextProperties.italic ? "italic" : "normal"}
+                fontSize={rowLabelTextProperties.size}>
                 {row.labelText}
             </text>}
 
@@ -128,9 +134,10 @@ export class WBWellLabelRowRenderer extends React.Component<IWBWellLabelRowRende
 
             {row.labels.map((label, labelIndex) => {
                 let labelX = this.props.config.wellOutsideSpacing + labelRowWidth / this.props.config.numberOfWells * currentPosition;
-                if (label.justification == "start") labelX += this.props.config.wellSpacing * 0.5;
-                if (label.justification == "end") labelX += label.width * labelRowWidth / this.props.config.numberOfWells - this.props.config.wellSpacing * 0.5;
-                if (label.angled || label.justification == "middle") labelX += 0.5 * label.width * labelRowWidth / this.props.config.numberOfWells;
+                let labelTextProperties = getTextProperties(label.textProperties, this.props.config.defaultTextProperties);
+                if (labelTextProperties.justification == "start") labelX += this.props.config.wellSpacing * 0.5;
+                if (labelTextProperties.justification == "end") labelX += label.width * labelRowWidth / this.props.config.numberOfWells - this.props.config.wellSpacing * 0.5;
+                if (label.angled || labelTextProperties.justification == "middle") labelX += 0.5 * label.width * labelRowWidth / this.props.config.numberOfWells;
 
                 let labelY = offset + row.height - 10;
                 let result = <g key={"well-label-" + labelIndex}>
@@ -138,7 +145,10 @@ export class WBWellLabelRowRenderer extends React.Component<IWBWellLabelRowRende
                     {!selected && <text key={"well-label-" + labelIndex}
                         x={labelX}
                         y={labelY}
-                        textAnchor={label.angled ? "left" : label.justification}
+                        textAnchor={label.angled ? "left" : labelTextProperties.justification}
+                        fontWeight={rowLabelTextProperties.bold ? "bold" : "normal"}
+                        fontStyle={rowLabelTextProperties.italic ? "italic" : "normal"}
+                        fontSize={rowLabelTextProperties.size}
                         transform={label.angled ? `rotate(-${this.props.config.wellLabelAngle}, ${labelX}, ${labelY})` : ""}>
                         {label.text}
                     </text>}

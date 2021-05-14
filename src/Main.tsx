@@ -2,7 +2,7 @@ import * as React from 'react';
 import { App } from './App';
 import { TabSet } from './Components/TabSet';
 import { Config } from './Types/Config';
-import { ConfigEditor } from './ConfigEditor';
+import { ConfigEditor } from './Components/ConfigEditor';
 import { ImageBrowser } from './ImageBrowser';
 import { IImageObject } from './Types/IImageObject';
 import { WBBlotElement } from './Types/WBBlotElement';
@@ -12,6 +12,8 @@ import { WBRenderer } from './WesternBlot/Renderer/WBRenderer';
 import { WBWellLabelElementEditor } from './WesternBlot/Editor/WBWellLabelElementEditor';
 import { WBElementEditor } from './WesternBlot/Editor/WBElementEditor';
 import UTIF from 'utif';
+import { WBWellLabel, WBWellLabelElement } from './Types/WBWellLabel';
+import { defaultTextProperties } from './Types/TextProperties';
 
 export interface IMainProps
 {
@@ -35,7 +37,12 @@ export var GetDefaultLabel = function (text: string | number): WBWellLabel
         width: 1,
         underline: false,
         text: text.toString(),
-        justification: "middle",
+        textProperties: {
+            bold: "default",
+            italic: "default",
+            justification: "default",
+            size: "default"
+        },
         angled: false,
     }
 };
@@ -57,6 +64,13 @@ export class Main extends React.Component<IMainProps, IMainState>
                 wellOutsideSpacing: 0,
                 wellSpacing: 10,
                 wellLabelAngle: 45,
+
+                defaultTextProperties: {
+                    bold: defaultTextProperties.bold,
+                    italic: defaultTextProperties.italic,
+                    justification: defaultTextProperties.justification,
+                    size: defaultTextProperties.size,
+                }
             },
             images: {},
             elements: [
@@ -64,7 +78,13 @@ export class Main extends React.Component<IMainProps, IMainState>
                     type: "well-label",
                     height: 32,
                     labelText: "Label",
-                    labels: Array.from(Array(numberOfWells).keys()).map(index => GetDefaultLabel(index + 1))
+                    labels: Array.from(Array(numberOfWells).keys()).map(index => GetDefaultLabel(index + 1)),
+                    labelTextProperties: {
+                        bold: "default",
+                        italic: "default",
+                        justification: "start",
+                        size: "default"
+                    }
                 },
             ],
             showingImageIndex: undefined
@@ -86,6 +106,12 @@ export class Main extends React.Component<IMainProps, IMainState>
                         width: this.state.config.blotWidth,
                         rotation: 0,
                     },
+                    labelTextProperties: {
+                        bold: "default",
+                        italic: "default",
+                        justification: "default",
+                        size: "default"
+                    },
                     imageProperties: {
                         brightness: 100,
                         contrast: 100,
@@ -101,7 +127,13 @@ export class Main extends React.Component<IMainProps, IMainState>
                 type: "well-label",
                 height: 32,
                 labelText: "Label",
-                labels: Array.from(Array(this.state.config.numberOfWells).keys()).map(index => GetDefaultLabel(index + 1))
+                labels: Array.from(Array(this.state.config.numberOfWells).keys()).map(index => GetDefaultLabel(index + 1)),
+                labelTextProperties: {
+                    bold: "default",
+                    italic: "default",
+                    justification: "start",
+                    size: "default"
+                }
             }, ...this.state.elements],
             selectedElementIndex: this.state.selectedElementIndex !== undefined ? this.state.selectedElementIndex + 1 : undefined
         });

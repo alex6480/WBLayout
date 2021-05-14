@@ -1,14 +1,17 @@
-type WBWellLabelElement = {
-    type: "well-label"
-    height: number,
-    labelText: string,
+import { TextProperties } from "./TextProperties"
+
+export type WBWellLabelElement = {
+    type: "well-label";
+    height: number;
+    labelText: string;
+    labelTextProperties: TextProperties;
     labels: WBWellLabel[];
 }
 
-type WBWellLabel = {
-    width: number,
-    underline: boolean,
-    text: string,
-    justification: "start" | "middle" | "end",
-    angled: boolean,
+export type WBWellLabel = {
+    width: number;
+    text: string;
+    textProperties: TextProperties;
+    angled: boolean;
+    underline: boolean;
 }

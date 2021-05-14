@@ -3,6 +3,7 @@ import { App } from '../../App';
 import { Config } from '../../Types/Config';
 import { IImageObject } from '../../Types/IImageObject';
 import { WBBlotElement } from '../../Types/WBBlotElement';
+import { WBWellLabelElement } from '../../Types/WBWellLabel';
 import { WBWellLabelEditor } from './WBWellLabelEditor';
 
 export interface IWBWellLabelelementEditorProps

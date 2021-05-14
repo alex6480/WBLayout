@@ -3,10 +3,10 @@ import { App } from '../../App';
 import { WBElement } from '../../Main';
 import { Config } from '../../Types/Config';
 import { IImageObject } from '../../Types/IImageObject';
-import { WBBlotElement } from '../../Types/WBBlotElement';
 import { WBElementRenderer } from './WBElementRenderer';
 import { WBWellLabelRowRenderer } from './WBWellLabelRowRenderer';
 import { FaArrowDown, FaArrowUp, FaTrashAlt } from 'react-icons/fa';
+import { getTextProperties } from '../../Types/TextProperties';
 
 export interface IWBRendererProps
 {
@@ -135,6 +135,7 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
         let offset = 20;
 
         let editorLayer: JSX.Element[] = [];
+        let textProperties = this.props.config.defaultTextProperties;
 
         // Render the elements
         let selectedElementPosition: number | undefined = undefined;
@@ -148,6 +149,7 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                     selectedElementPosition = offset + element.height * 0.5;
 
                     // Add editable text field for the row label
+                    let rowLabelTextProperties = getTextProperties(element.labelTextProperties, this.props.config.defaultTextProperties);
                     editorLayer.push(<input type="text"
                         key={"well-label-editor-" + elementIndex}
                         value={element.labelText}
@@ -159,6 +161,9 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                             left: `${this.props.config.blotWidth + this.props.config.elementLabelSpacing + 100}px`,
                             top: `calc(${offset - 10 + element.height}px - 1.1em)`,
                             height: "1.4em",
+                            fontSize: rowLabelTextProperties.size,
+                            fontStyle: rowLabelTextProperties.italic ? "italic" : "normal",
+                            fontWeight: rowLabelTextProperties.bold ? "bold" : "normal",
                             width: this.props.config.blotWidth,
                         }}
                     />);
@@ -167,6 +172,7 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                     let currentPosition = 0;
                     let labelRowWidth = (this.props.config.blotWidth - this.props.config.wellOutsideSpacing * 2);
                     element.labels.map((label, labelIndex) => {
+                        let labelTextProperties = getTextProperties(label.textProperties, this.props.config.defaultTextProperties);
                         editorLayer.push(<input type="text"
                             key={"well-label-editor-" + elementIndex + "-" + labelIndex}
                             value={label.text}
@@ -189,7 +195,10 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                                 top: `calc(${offset - 10 + element.height}px - 1.1em)`,
                                 height: "1.4em",
                                 width: labelRowWidth / this.props.config.numberOfWells * label.width - this.props.config.wellSpacing,
-                                textAlign: label.justification == "middle" ? "center" : label.justification
+                                textAlign: labelTextProperties.justification == "middle" ? "center" : labelTextProperties.justification,
+                                fontSize: labelTextProperties.size,
+                                fontStyle: labelTextProperties.italic ? "italic" : "normal",
+                                fontWeight: labelTextProperties.bold ? "bold" : "normal",
                             }}
                         />);
                         currentPosition += label.width;
@@ -233,6 +242,7 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                     selectedElementPosition = offset + element.height * 0.5;
 
                     // Add editable text field
+                    let labelTextProperties = getTextProperties(element.labelTextProperties, this.props.config.defaultTextProperties);
                     editorLayer.push(<input type="text"
                         key={"label-editor-" + elementIndex}
                         value={element.label}
@@ -240,6 +250,9 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
                         className="borderless-input"
                         style={{
                             color: "red",
+                            fontSize: labelTextProperties.size,
+                            fontStyle: labelTextProperties.italic ? "italic" : "normal",
+                            fontWeight: labelTextProperties.bold ? "bold" : "normal",
                             position: "absolute",
                             left: `${this.props.config.blotWidth + this.props.config.elementLabelSpacing + 100}px`,
                             top: `calc(${offset + element.height * 0.5}px - 1em)`,

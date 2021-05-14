@@ -2,6 +2,7 @@ import * as React from 'react';
 import { App } from '../../App';
 import { Config } from '../../Types/Config';
 import { IImageObject } from '../../Types/IImageObject';
+import { getTextProperties } from '../../Types/TextProperties';
 import { WBBlotElement } from '../../Types/WBBlotElement';
 import { WBWellLabelRowRenderer } from './WBWellLabelRowRenderer';
 
@@ -123,6 +124,7 @@ export class WBElementRenderer extends React.Component<IWBElementRendererProps, 
         let offset = this.props.offset;
         let selected = this.props.selected;
         let imageScale = this.props.config.blotWidth / element.boundingBox.width;
+        let rowLabelTextProperties = getTextProperties(element.labelTextProperties, this.props.config.defaultTextProperties);
         return <g>
             { /* Render the image with clipping */}
             <clipPath id={"element-image-clip-" + this.props.index}>
@@ -156,6 +158,9 @@ export class WBElementRenderer extends React.Component<IWBElementRendererProps, 
             {(this.props.rendering || !selected) && <text
                 y={offset + element.height * 0.5}
                 x={this.props.config.blotWidth + this.props.config.elementLabelSpacing}
+                fontWeight={rowLabelTextProperties.bold ? "bold" : "normal"}
+                fontStyle={rowLabelTextProperties.italic ? "italic" : "normal"}
+                fontSize={rowLabelTextProperties.size}
                 onClick={() => this.props.select()}
                 dominantBaseline="central">{element.label}</text>}
             

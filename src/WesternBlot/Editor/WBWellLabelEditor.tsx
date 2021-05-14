@@ -1,8 +1,10 @@
 import * as React from 'react';
 import { App } from '../../App';
+import { TextPropertiesEditor } from '../../Components/TextPropertiesEditor';
 import { Config } from '../../Types/Config';
 import { IImageObject } from '../../Types/IImageObject';
 import { WBBlotElement } from '../../Types/WBBlotElement';
+import { WBWellLabel } from '../../Types/WBWellLabel';
 
 export interface IWBWellLabelEditorProps
 {
@@ -26,25 +28,7 @@ export class WBWellLabelEditor extends React.Component<IWBWellLabelEditorProps, 
                     </div>
                 </div>
             </div>
-            <div className="field">
-                <label className="label">Justification</label>
-                <div className="field">
-                    <div className="buttons">
-                        <button className={"button " + (label.justification == "start" ? "is-primary" : "")}
-                            onClick={() => this.props.onChange({ ...label, justification: "start" })}>
-                            Left
-                        </button>
-                        <button className={"button " + (label.justification == "middle" ? "is-primary" : "")}
-                            onClick={() => this.props.onChange({ ...label, justification: "middle" })}>
-                            Center
-                        </button>
-                        <button className={"button " + (label.justification == "end" ? "is-primary" : "")}
-                            onClick={() => this.props.onChange({ ...label, justification: "end" })}>
-                            Right
-                        </button>
-                    </div>
-                </div>
-            </div>
+            <TextPropertiesEditor properties={label.textProperties} onChange={properties => this.props.onChange({ ...this.props.label, textProperties: properties })} allowDefault={true}/>
             <div className="field">
                 <label className="checkbox">
                     <input type="checkbox" onChange={() => this.props.onChange({ ...label, underline: !label.underline })} checked={label.underline}/>
