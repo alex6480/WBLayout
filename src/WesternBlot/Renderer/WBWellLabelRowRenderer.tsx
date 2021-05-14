@@ -20,6 +20,8 @@ export class WBWellLabelRowRenderer extends React.Component<IWBWellLabelRowRende
 {
     private mergeSplitWellLabelAt(position: number)
     {
+        this.props.select([]);
+
         let row = this.props.labelRow;
         let totalWidth = 0;
 
@@ -93,7 +95,6 @@ export class WBWellLabelRowRenderer extends React.Component<IWBWellLabelRowRende
     public render(): JSX.Element
     {
         let offset = this.props.offset;
-        let selection = this.props.selection;
         let row = this.props.labelRow;
         let labelRowWidth = (this.props.config.blotWidth - this.props.config.wellOutsideSpacing * 2);
         let rowLabelTextProperties = getTextProperties(this.props.labelRow.labelTextProperties, this.props.config.defaultTextProperties);

@@ -284,6 +284,11 @@ export class WBRenderer extends React.Component<IWBRendererProps, IWBRendererSta
             </div>
             <div style={{position: 'relative', fontSize: "1rem"}}>
                 <svg ref={e => this.svgElement = e} width={this.props.config.blotWidth * 2 + (this.state.rendering ? 100 : 0)} height={offset + 100}>
+                    { /* Add rect for deselecting */ }
+                    <rect x={0} y={0}
+                        width={this.props.config.blotWidth * 2 + (this.state.rendering ? 100 : 0)} height={offset + 100}
+                        fill="transparent"
+                        onClick={() => this.props.selectElement([])}></rect>
                     {this.state.rendering
                         ? elements
                         : <g transform="translate(100, 0)">
