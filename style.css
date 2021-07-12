@@ -1,0 +1,9 @@
+.borderless-input,
+.borderless-input:focus,
+.borderless-input:focus-visible {
+    border: 0;
+    background: transparent;
+    font-size: inherit;
+    outline: none;
+    padding: 0;
+}
