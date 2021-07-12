@@ -16,18 +16,13 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [15.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
     steps:
     - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Use Node.js 15.x
     
       uses: actions/setup-node@v2
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: 15.x
     - run: npm install
     - run: npm run-script build
     - run: cp /home/runner/work/WBLayout/WBLayout/style.css /home/runner/work/WBLayout/WBLayout/dist/
@@ -36,3 +31,9 @@ jobs:
       with:
         name: release
         path: /home/runner/work/WBLayout/WBLayout/dist
+        
+    - name: Deploy 🚀
+      uses: JamesIves/github-pages-deploy-action@4.1.4
+      with:
+        branch: gh-pages # The branch the action should deploy to.
+          folder: build # The folder the action should deploy.
